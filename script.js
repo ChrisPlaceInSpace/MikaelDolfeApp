@@ -1,0 +1,422 @@
+// Mobile menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const navList = document.querySelector('.nav-list');
+    
+    // Toggle mobile menu
+    mobileMenuToggle.addEventListener('click', function() {
+        navList.classList.toggle('active');
+        
+        // Animate hamburger menu
+        const spans = this.querySelectorAll('span');
+        spans.forEach(span => span.classList.toggle('active'));
+    });
+
+    // Close mobile menu when clicking on a link
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            navList.classList.remove('active');
+        });
+    });
+
+    // Smooth scrolling for navigation links
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            
+            // If it's a hash link (like #bocker), handle smooth scrolling
+            if (href.startsWith('#')) {
+                e.preventDefault();
+                const targetSection = document.querySelector(href);
+                
+                if (targetSection) {
+                    const headerHeight = document.querySelector('.header').offsetHeight;
+                    const targetPosition = targetSection.offsetTop - headerHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+            // If it's a full URL with hash (like /#bocker), handle navigation
+            else if (href.includes('#') && href.startsWith('/')) {
+                const hash = href.split('#')[1];
+                const currentPath = window.location.pathname;
+                
+                // If we're already on the home page, just scroll to the section
+                if (currentPath === '/') {
+                    e.preventDefault();
+                    const targetSection = document.querySelector('#' + hash);
+                    
+                    if (targetSection) {
+                        const headerHeight = document.querySelector('.header').offsetHeight;
+                        const targetPosition = targetSection.offsetTop - headerHeight;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+                // If we're on a different page, let the browser navigate
+                // The handleCrossPageNavigation function will handle the scrolling
+            }
+        });
+    });
+
+    // Handle navigation from other pages to home page sections
+    function handleCrossPageNavigation() {
+        const hash = window.location.hash;
+        if (hash) {
+            // Wait for page to load, then scroll to section
+            setTimeout(() => {
+                const targetSection = document.querySelector(hash);
+                if (targetSection) {
+                    const headerHeight = document.querySelector('.header').offsetHeight;
+                    const targetPosition = targetSection.offsetTop - headerHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        }
+    }
+
+    // Call the function when page loads
+    handleCrossPageNavigation();
+
+    // Active navigation highlighting
+    function updateActiveNav() {
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        let current = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            const headerHeight = document.querySelector('.header').offsetHeight;
+            
+            if (window.pageYOffset >= (sectionTop - headerHeight - 200)) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // Update active navigation on scroll
+    window.addEventListener('scroll', updateActiveNav);
+    
+    // Initial active navigation
+    updateActiveNav();
+
+    // Header scroll effect
+    const header = document.querySelector('.header');
+    let lastScrollTop = 0;
+    
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 100) {
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+            header.style.backdropFilter = 'blur(10px)';
+        } else {
+            header.style.background = '#fff';
+            header.style.backdropFilter = 'none';
+        }
+        
+        lastScrollTop = scrollTop;
+    });
+
+    // Contact form handling
+    const contactForm = document.getElementById('contactForm');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            const name = formData.get('name');
+            const email = formData.get('email');
+            const subject = formData.get('subject');
+            const message = formData.get('message');
+            
+            // Basic validation
+            if (!name || !email || !message) {
+                showNotification('Vänligen fyll i alla obligatoriska fält.', 'error');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showNotification('Vänligen ange en giltig e-postadress.', 'error');
+                return;
+            }
+            
+            // Simulate form submission (replace with actual form handling)
+            showNotification('Tack för ditt meddelande! Vi återkommer snart.', 'success');
+            
+            // Reset form
+            this.reset();
+        });
+    }
+
+    // Email validation
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">&times;</button>
+            </div>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        
+        // Add animation keyframes
+        if (!document.querySelector('#notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'notification-styles';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Close button functionality
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', function() {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        });
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // Smooth reveal animation for sections
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all sections
+    const sections = document.querySelectorAll('section');
+    sections.forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(30px)';
+        section.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        observer.observe(section);
+    });
+
+    // CTA button functionality
+    // CTA button now links directly to book page, no JavaScript needed
+
+    // Content loading functions
+    async function loadBooks() {
+        try {
+            console.log('🔄 Loading books...');
+            const response = await fetch('/api/books');
+            const books = await response.json();
+            console.log('📚 Books data received:', books);
+            
+            const container = document.getElementById('books-container');
+            console.log('📦 Books container found:', container);
+            
+            if (books.length === 0) {
+                container.innerHTML = '<div class="no-content">Inga böcker tillgängliga än</div>';
+                return;
+            }
+            
+            const booksHTML = books.map(book => {
+                const hasPrice = book.price && book.price > 0;
+                console.log(`Book: ${book.title}, Price: ${book.price}, Has Price: ${hasPrice}`);
+                
+                return `
+                <div class="book-card" onclick="window.location.href='/book/${book.id}'" style="cursor: pointer;">
+                    <div class="book-cover">
+                        ${book.cover_image ? 
+                            `<img src="${book.cover_image}" alt="${book.title}">` : 
+                            `<h3>${book.title}</h3>${book.subtitle ? `<p class="book-subtitle">${book.subtitle}</p>` : ''}`
+                        }
+                    </div>
+                    <div class="book-info">
+                        <h4>${book.title}</h4>
+                        <div class="book-price" style="${hasPrice ? '' : 'visibility: hidden; height: 2.5rem;'}">
+                            ${hasPrice ? `<span class="price-amount">${book.price} SEK</span>` : ''}
+                        </div>
+                        <div class="book-actions" style="${hasPrice ? '' : 'visibility: hidden; height: 2.5rem;'}">
+                            ${hasPrice ? `<a href="/purchase/${book.id}" class="btn-purchase" onclick="event.stopPropagation()" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Köp</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+            
+            console.log('📝 Books HTML generated:', booksHTML);
+            console.log('🔍 Checking if buttons are in HTML:', booksHTML.includes('btn-purchase'));
+            container.innerHTML = booksHTML;
+            console.log('✅ Books loaded successfully');
+            
+            // Additional debugging
+            const buttons = document.querySelectorAll('.btn-purchase');
+            console.log(`🔘 Found ${buttons.length} purchase buttons in DOM`);
+            buttons.forEach((btn, index) => {
+                console.log(`Button ${index + 1}:`, btn.textContent, btn.style.display, btn.offsetHeight);
+            });
+        } catch (error) {
+            console.error('❌ Error loading books:', error);
+            document.getElementById('books-container').innerHTML = '<div class="error">Kunde inte ladda böcker</div>';
+        }
+    }
+
+
+    async function loadBlogPosts() {
+        try {
+            console.log('🔄 Loading blog posts...');
+            const response = await fetch('/api/blog');
+            const posts = await response.json();
+            console.log('📝 Blog posts data received:', posts);
+            
+            const container = document.getElementById('blog-container');
+            console.log('📦 Blog container found:', container);
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<div class="no-content">Inga blogginlägg tillgängliga än</div>';
+                return;
+            }
+            
+            const postsHTML = posts.map(post => `
+                <article class="blog-post" onclick="window.location.href='/blog/${post.id}'" style="cursor: pointer;">
+                    <div class="blog-date">${new Date(post.created_at).toLocaleDateString('sv-SE')}</div>
+                    <h3>${post.title}</h3>
+                    ${post.excerpt ? `<p>${post.excerpt}</p>` : ''}
+                    <a href="/blog/${post.id}" class="read-more" onclick="event.stopPropagation()">Läs mer</a>
+                </article>
+            `).join('');
+            
+            console.log('📝 Blog posts HTML generated:', postsHTML);
+            container.innerHTML = postsHTML;
+            console.log('✅ Blog posts loaded successfully');
+        } catch (error) {
+            console.error('❌ Error loading blog posts:', error);
+            document.getElementById('blog-container').innerHTML = '<div class="error">Kunde inte ladda blogginlägg</div>';
+        }
+    }
+
+    // Load content when page loads
+    loadBooks();
+    loadBlogPosts();
+
+    // Add loading animation
+    window.addEventListener('load', function() {
+        document.body.classList.add('loaded');
+    });
+});
+
+// Add some additional CSS for notifications
+const additionalStyles = `
+    .notification-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    .notification-close:hover {
+        opacity: 0.8;
+    }
+    
+    .notification-message {
+        flex: 1;
+    }
+`;
+
+// Inject additional styles
+if (!document.querySelector('#additional-styles')) {
+    const style = document.createElement('style');
+    style.id = 'additional-styles';
+    style.textContent = additionalStyles;
+    document.head.appendChild(style);
+}

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post ? 'Redigera' : 'Skapa' %> Blogginlägg - Mikael Dolfe Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: #7f8c8d;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-group .help-text {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 0.5rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #229954;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .status-draft {
+            color: #f39c12;
+        }
+        
+        .status-published {
+            color: #27ae60;
+        }
+        
+        .character-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 0.5rem;
+        }
+        
+        .character-count.warning {
+            color: #f39c12;
+        }
+        
+        .character-count.error {
+            color: #e74c3c;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Mikael Dolfe Admin</h1>
+        <div class="nav-links">
+            <a href="/admin/logout">Logga ut</a>
+        </div>
+    </header>
+    
+    <div class="container">
+        <a href="/admin/blog" class="back-link">← Tillbaka till Blogg</a>
+        
+        <div class="page-header">
+            <h2><%= post ? 'Redigera blogginlägg' : 'Skapa nytt blogginlägg' %></h2>
+            <p><%= post ? 'Uppdatera innehållet i ditt blogginlägg' : 'Skapa ett nytt blogginlägg för att dela med dig av dina tankar och inspiration' %></p>
+        </div>
+        
+        <div class="form-container">
+            <form method="POST" action="<%= post ? `/admin/blog/${post.id}` : '/admin/blog' %>">
+                <div class="form-group">
+                    <label for="title">Titel *</label>
+                    <input type="text" id="title" name="title" value="<%= post ? post.title : '' %>" required maxlength="200">
+                    <div class="character-count">
+                        <span id="title-count">0</span>/200
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="excerpt">Utdrag</label>
+                    <textarea id="excerpt" name="excerpt" maxlength="500" placeholder="Ett kort utdrag som visas i blogglistan..."><%= post ? post.excerpt : '' %></textarea>
+                    <div class="character-count">
+                        <span id="excerpt-count">0</span>/500
+                    </div>
+                    <div class="help-text">Ett kort utdrag som visas i blogglistan. Lämna tomt om du inte vill ha något utdrag.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Innehåll *</label>
+                    <textarea id="content" name="content" required placeholder="Skriv ditt blogginlägg här..."><%= post ? post.content : '' %></textarea>
+                    <div class="help-text">Huvudinnehållet i ditt blogginlägg. Du kan använda HTML-taggar för formatering.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="draft" <%= post && post.status === 'draft' ? 'selected' : '' %>>Utkast</option>
+                        <option value="published" <%= post && post.status === 'published' ? 'selected' : '' %>>Publicerat</option>
+                    </select>
+                    <div class="help-text">
+                        <span class="status-draft">Utkast:</span> Endast synligt för dig i admin-panelen<br>
+                        <span class="status-published">Publicerat:</span> Synligt för besökare på webbplatsen
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <%= post ? 'Uppdatera inlägg' : 'Skapa inlägg' %>
+                    </button>
+                    <a href="/admin/blog" class="btn btn-secondary">Avbryt</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Character count functionality
+        function updateCharacterCount(inputId, countId, maxLength) {
+            const input = document.getElementById(inputId);
+            const count = document.getElementById(countId);
+            const countElement = document.getElementById(countId);
+            
+            function updateCount() {
+                const currentLength = input.value.length;
+                countElement.textContent = currentLength;
+                
+                // Update color based on usage
+                countElement.parentElement.className = 'character-count';
+                if (currentLength > maxLength * 0.9) {
+                    countElement.parentElement.classList.add('warning');
+                }
+                if (currentLength > maxLength) {
+                    countElement.parentElement.classList.add('error');
+                }
+            }
+            
+            input.addEventListener('input', updateCount);
+            updateCount(); // Initial count
+        }
+        
+        // Initialize character counts
+        updateCharacterCount('title', 'title-count', 200);
+        updateCharacterCount('excerpt', 'excerpt-count', 500);
+        
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            
+            if (!title) {
+                e.preventDefault();
+                alert('Titel är obligatorisk');
+                document.getElementById('title').focus();
+                return;
+            }
+            
+            if (!content) {
+                e.preventDefault();
+                alert('Innehåll är obligatoriskt');
+                document.getElementById('content').focus();
+                return;
+            }
+        });
+    </script>
+</body>
+</html>
+
+

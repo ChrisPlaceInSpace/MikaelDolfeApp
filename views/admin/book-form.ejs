@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= book ? 'Redigera Bok' : 'Lägg till ny bok' %> - Mikael Dolfe Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .page-header h2 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .file-upload {
+            border: 2px dashed #bdc3c7;
+            border-radius: 5px;
+            padding: 2rem;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .file-upload:hover {
+            border-color: #3498db;
+            background-color: #ecf0f1;
+        }
+        
+        .file-upload.dragover {
+            border-color: #3498db;
+            background-color: #ecf0f1;
+            transform: scale(1.02);
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload label {
+            cursor: pointer;
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .file-upload p {
+            margin-top: 0.5rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .current-image {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .current-image img {
+            max-width: 200px;
+            max-height: 300px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-right: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .form-actions {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .character-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 0.25rem;
+        }
+        
+        .character-count.warning {
+            color: #f39c12;
+        }
+        
+        .character-count.danger {
+            color: #e74c3c;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                text-align: center;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin-bottom: 1rem;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mikael Dolfe Admin</h1>
+    </div>
+    
+    <div class="container">
+        <a href="/admin/books" class="back-link">← Tillbaka till Böcker</a>
+        
+        <div class="page-header">
+            <h2><%= book ? 'Redigera Bok' : 'Lägg till ny bok' %></h2>
+            <p><%= book ? 'Uppdatera information om boken' : 'Skapa en ny bok för din samling' %></p>
+        </div>
+        
+        <div class="form-container">
+            <form method="POST" action="<%= book ? `/admin/books/${book.id}` : '/admin/books' %>" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title">Titel *</label>
+                        <input type="text" id="title" name="title" value="<%= book ? book.title : '' %>" required maxlength="200">
+                        <div class="character-count">
+                            <span id="title-count">0</span>/200
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subtitle">Undertitel</label>
+                        <input type="text" id="subtitle" name="subtitle" value="<%= book ? book.subtitle : '' %>" maxlength="200">
+                        <div class="character-count">
+                            <span id="subtitle-count">0</span>/200
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Beskrivning</label>
+                    <textarea id="description" name="description" maxlength="1000" placeholder="Beskriv boken, dess innehåll och vad läsarna kan förvänta sig..."><%= book ? book.description : '' %></textarea>
+                    <div class="character-count">
+                        <span id="description-count">0</span>/1000
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="draft" <%= book && book.status === 'draft' ? 'selected' : '' %>>Utkast</option>
+                            <option value="published" <%= book && book.status === 'published' ? 'selected' : '' %>>Publicerad</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="release_date">Utgivningsdatum</label>
+                        <input type="date" id="release_date" name="release_date" value="<%= book && book.release_date ? book.release_date.split('T')[0] : '' %>">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Pris (SEK)</label>
+                        <input type="number" id="price" name="price" value="<%= book && book.price ? book.price : '' %>" step="0.01" min="0" placeholder="299.00">
+                        <small class="form-help">Ange priset i svenska kronor (SEK)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sort_order">Sorteringsordning</label>
+                        <input type="number" id="sort_order" name="sort_order" value="<%= book && book.sort_order ? book.sort_order : '0' %>" min="0" placeholder="0">
+                        <small class="form-help">Lägre nummer = visas först på hemsidan (0 = först)</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Omslagsbild</label>
+                    <div class="file-upload">
+                        <input type="file" id="cover_image" name="cover_image" accept="image/*">
+                        <label for="cover_image">
+                            <strong>Klicka för att välja bild</strong>
+                            <p>eller dra och släpp en bild här</p>
+                            <p>Stödda format: JPG, PNG, GIF, WebP (max 5MB)</p>
+                        </label>
+                        <div class="drag-message" style="display: none; margin-top: 1rem; color: #3498db; font-weight: 600;">
+                            Släpp bilden här för att ladda upp
+                        </div>
+                    </div>
+                    
+                    <% if (book && book.cover_image) { %>
+                        <div class="current-image">
+                            <p><strong>Nuvarande bild:</strong></p>
+                            <img src="<%= book.cover_image %>" alt="<%= book.title %>">
+                            <input type="hidden" name="existing_cover_image" value="<%= book.cover_image %>">
+                        </div>
+                    <% } %>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn">
+                        <%= book ? 'Uppdatera bok' : 'Skapa bok' %>
+                    </button>
+                    <a href="/admin/books" class="btn btn-secondary">Avbryt</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Character counting
+        function updateCharacterCount(inputId, countId, maxLength) {
+            const input = document.getElementById(inputId);
+            const count = document.getElementById(countId);
+            
+            function updateCount() {
+                const currentLength = input.value.length;
+                count.textContent = currentLength;
+                
+                count.className = 'character-count';
+                if (currentLength > maxLength * 0.8) {
+                    count.className += ' warning';
+                }
+                if (currentLength > maxLength * 0.95) {
+                    count.className += ' danger';
+                }
+            }
+            
+            input.addEventListener('input', updateCount);
+            updateCount(); // Initial count
+        }
+        
+        // Initialize character counting
+        updateCharacterCount('title', 'title-count', 200);
+        updateCharacterCount('subtitle', 'subtitle-count', 200);
+        updateCharacterCount('description', 'description-count', 1000);
+        
+        // File upload preview and drag & drop functionality
+        const fileUpload = document.querySelector('.file-upload');
+        const fileInput = document.getElementById('cover_image');
+        
+        // File input change event
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                previewFile(file);
+            }
+        });
+        
+        // Drag and drop events
+        fileUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+            document.querySelector('.drag-message').style.display = 'block';
+        });
+        
+        fileUpload.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            document.querySelector('.drag-message').style.display = 'none';
+        });
+        
+        fileUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            document.querySelector('.drag-message').style.display = 'none';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    fileInput.files = files;
+                    previewFile(file);
+                } else {
+                    alert('Endast bildfiler är tillåtna!');
+                }
+            }
+        });
+        
+        // File preview function
+        function previewFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const currentImage = document.querySelector('.current-image');
+                if (currentImage) {
+                    currentImage.innerHTML = `
+                        <p><strong>Ny vald bild:</strong></p>
+                        <img src="${e.target.result}" alt="Förhandsvisning">
+                    `;
+                } else {
+                    const newPreview = document.createElement('div');
+                    newPreview.className = 'current-image';
+                    newPreview.innerHTML = `
+                        <p><strong>Vald bild:</strong></p>
+                        <img src="${e.target.result}" alt="Förhandsvisning">
+                    `;
+                    fileUpload.parentNode.insertBefore(newPreview, fileUpload.nextSibling);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
+
+

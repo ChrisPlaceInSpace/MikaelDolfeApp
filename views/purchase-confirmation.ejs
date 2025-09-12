@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Köp bekräftat - Mikael Dolfe</title>
+    <meta name="description" content="Ditt köp av <%= book.title %> har bekräftats">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        .confirmation-page {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: calc(100vh - 200px);
+        }
+        
+        .confirmation-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #27ae60;
+            margin-bottom: 2rem;
+        }
+        
+        .confirmation-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .confirmation-message {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+        
+        .order-details {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .order-details h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .detail-label {
+            color: #7f8c8d;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .next-steps {
+            background: #e8f5e8;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .next-steps h3 {
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .next-steps p {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 0 1rem;
+            }
+            
+            .confirmation-title {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('components/header') %>
+
+    <main>
+        <section class="confirmation-page">
+            <div class="confirmation-container">
+                <div class="success-icon">✅</div>
+                
+                <h1 class="confirmation-title">Köp bekräftat!</h1>
+                
+                <p class="confirmation-message">
+                    Tack för ditt köp! Din beställning har mottagits och du kommer att få en bekräftelse via e-post inom kort.
+                </p>
+                
+                <div class="order-details">
+                    <h3>Beställningsdetaljer</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Bok:</span>
+                        <span class="detail-value"><%= book.title %></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Pris:</span>
+                        <span class="detail-value"><%= book.price %> SEK</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Köpare:</span>
+                        <span class="detail-value"><%= purchase.full_name %></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">E-post:</span>
+                        <span class="detail-value"><%= purchase.email %></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Beställningsdatum:</span>
+                        <span class="detail-value"><%= new Date().toLocaleDateString('sv-SE') %></span>
+                    </div>
+                </div>
+                
+                <div class="next-steps">
+                    <h3>Nästa steg</h3>
+                    <p>• Du kommer att få en bekräftelse via e-post</p>
+                    <p>• Mikael Dolfe kommer att kontakta dig för leveransinformation</p>
+                    <p>• Boken skickas inom 2-3 arbetsdagar</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="/" class="btn">Tillbaka till startsidan</a>
+                    <a href="/#bocker" class="btn btn-secondary">Se fler böcker</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Mikael Dolfe. Alla rättigheter förbehållna.</p>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mikael Dolfe - Författare</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('components/header') %>
+
+    <main>
+        <!-- Hem Section -->
+        <section id="hem" class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Välkommen till Mikael Dolfe</h2>
+                    <p class="hero-subtitle">Författare, journalist, översättare och uppläsare</p>
+                    <div class="hero-main">
+                        <div class="hero-author">
+                            <div class="author-display-image">
+                                <img src="/uploads/profile/author-display.jpeg" alt="Mikael Dolfe - Författare" class="author-display-picture">
+                            </div>
+                        </div>
+                        <div class="hero-book">
+                            <h3>Ny bok utkommen!</h3>
+                            <h4>"Älska har sin tid - Boken om Nancy"</h4>
+                            <p>En gripande berättelse om kärlek, tid och livets utmaningar</p>
+                            <a href="/book/3" class="cta-button">Läs mer om boken</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Böcker Section -->
+        <section id="bocker" class="books-section">
+            <div class="container">
+                <h2>Böcker</h2>
+                <div class="books-grid" id="books-container">
+                    <div class="loading">Laddar böcker...</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Blogg Section -->
+        <section id="blogg" class="blog-section">
+            <div class="container">
+                <h2>Blogg</h2>
+                <p class="section-intro">Följ Mikaels tankar, inspiration och processer som författare och konstnär.</p>
+                <div class="blog-grid" id="blog-container">
+                    <div class="loading">Laddar blogginlägg...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Om Författaren Section -->
+        <section id="om" class="about-section">
+            <div class="container">
+                <h2>Om Författaren</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>Mikael Dolfe är en svensk författare och konstnär vars verk utforskar mänsklighetens djup, kärlekens mysterier och tidens gång. Med en bakgrund inom både litteratur och visuell konst skapar han berättelser som rör vid själen.</p>
+                        
+                        <p>Hans senaste projekt, "Älska har sin tid - Boken om Nancy", är en poetisk roman som undersöker hur kärlek förändras över tid och vad som händer när vi möter våra djupaste känslor.</p>
+                        
+                        <p>Mikael bor och arbetar i Sverige, där han inspireras av landskapet, människorna han möter och livets små ögonblick som ofta döljer de största sanningarna.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="/uploads/profile/Mikael-TEC.jpg" alt="Mikael Dolfe - Författare" class="author-profile-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Kontakt Section -->
+        <section id="kontakt" class="contact-section">
+            <div class="container">
+                <h2>Kontakt</h2>
+                <p class="section-intro">Vill du komma i kontakt med Mikael? Skicka ett meddelande nedan.</p>
+                <div class="contact-content">
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Namn *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-post *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Ämne</label>
+                            <input type="text" id="subject" name="subject">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Meddelande *</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-button">Skicka meddelande</button>
+                    </form>
+                    <div class="contact-info">
+                        <h3>Andra sätt att nå oss</h3>
+                        <p><strong>E-post:</strong> info@mikaeldolfe.se</p>
+                        <p><strong>Förlag:</strong> Lava förlag</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('components/footer') %>
+
+    <script src="script.js"></script>
+</body>
+</html>

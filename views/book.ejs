@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= book.title %> - Mikael Dolfe</title>
+    <meta name="description" content="<%= book.description || book.subtitle || book.title %>">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        .book-detail {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: calc(100vh - 200px);
+        }
+        
+        .book-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .book-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .book-title {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .book-subtitle {
+            font-size: 1.5rem;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        
+        .book-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #2c3e50;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .book-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            align-items: start;
+        }
+        
+        .book-cover-section {
+            text-align: center;
+        }
+        
+        .book-cover {
+            width: 100%;
+            max-width: 300px;
+            height: 450px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 1rem;
+        }
+        
+        .book-cover-placeholder {
+            width: 100%;
+            max-width: 300px;
+            height: 450px;
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.2rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .book-details {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .book-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+        
+
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .book-price-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #3498db;
+        }
+        
+        .price-display {
+            margin-bottom: 1.5rem;
+        }
+        
+        .price-label {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .price-amount {
+            font-size: 2rem;
+            color: #e74c3c;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .btn-purchase {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-purchase:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(135deg, #c0392b, #a93226);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .breadcrumb a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .book-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .book-title {
+                font-size: 2rem;
+            }
+            
+            .book-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .book-meta {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .book-container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('components/header') %>
+
+    <main>
+        <section class="book-detail">
+            <div class="book-container">
+                <a href="/#bocker" class="back-link">← Tillbaka till Böcker</a>
+                
+                <div class="breadcrumb">
+                    <a href="/">Hem</a> > <a href="/#bocker">Böcker</a> > <%= book.title %>
+                </div>
+                
+                <div class="book-header">
+                    <h1 class="book-title"><%= book.title %></h1>
+                    <% if (book.subtitle) { %>
+                        <h2 class="book-subtitle"><%= book.subtitle %></h2>
+                    <% } %>
+                    
+                    <% if (book.release_date) { %>
+                        <div class="book-meta">
+                            <span class="meta-item">
+                                Utgivningsdatum: <%= new Date(book.release_date).toLocaleDateString('sv-SE') %>
+                            </span>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <div class="book-content">
+                    <div class="book-cover-section">
+                        <% if (book.cover_image) { %>
+                            <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover">
+                        <% } else { %>
+                            <div class="book-cover-placeholder">
+                                Omslagsbild saknas
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <div class="book-details">
+                        <% if (book.description) { %>
+                            <div class="book-description">
+                                <%= book.description %>
+                            </div>
+                        <% } %>
+                        
+                        <!-- Debug: book.price = <%= book.price %> -->
+                        <% if (book.price && book.price > 0) { %>
+                            <div class="book-price-section">
+                                <div class="price-display">
+                                    <span class="price-label">Pris:</span>
+                                    <span class="price-amount"><%= book.price %> SEK</span>
+                                </div>
+                                <a href="/purchase/<%= book.id %>" class="btn btn-purchase">Köp nu</a>
+                            </div>
+                        <% } else { %>
+                            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 2rem; text-align: center; color: #6c757d;">
+                                <p>Denna bok är inte tillgänglig för köp.</p>
+                            </div>
+                        <% } %>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Mikael Dolfe. Alla rättigheter förbehållna.</p>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+</html>
+
+
+

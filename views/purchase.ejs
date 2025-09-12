@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Köp <%= book.title %> - Mikael Dolfe</title>
+    <meta name="description" content="Köp <%= book.title %> av Mikael Dolfe">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        .purchase-page {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: calc(100vh - 200px);
+        }
+        
+        .purchase-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .purchase-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .purchase-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .book-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .book-cover-small {
+            width: 120px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .book-cover-placeholder-small {
+            width: 120px;
+            height: 160px;
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 2rem;
+        }
+        
+        .book-details-small h3 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .book-details-small p {
+            margin: 0 0 1rem 0;
+            color: #7f8c8d;
+        }
+        
+        .price-display-small {
+            font-size: 1.5rem;
+            color: #e74c3c;
+            font-weight: 700;
+        }
+        
+        .purchase-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 2rem 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: scale(1.2);
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+        
+        .terms-link {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .terms-link:hover {
+            text-decoration: underline;
+        }
+        
+        .form-actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            margin-right: 1rem;
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .breadcrumb a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .purchase-container {
+                padding: 0 1rem;
+            }
+            
+            .purchase-title {
+                font-size: 2rem;
+            }
+            
+            .book-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .purchase-form {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('components/header') %>
+
+    <main>
+        <section class="purchase-page">
+            <div class="purchase-container">
+                <a href="/book/<%= book.id %>" class="back-link">← Tillbaka till boken</a>
+                
+                <div class="breadcrumb">
+                    <a href="/">Hem</a> > <a href="/#bocker">Böcker</a> > <a href="/book/<%= book.id %>"><%= book.title %></a> > Köp
+                </div>
+                
+                <div class="purchase-header">
+                    <h1 class="purchase-title">Köp boken</h1>
+                </div>
+                
+                <div class="book-info">
+                    <% if (book.cover_image) { %>
+                        <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover-small">
+                    <% } else { %>
+                        <div class="book-cover-placeholder-small">
+                            📖
+                        </div>
+                    <% } %>
+                    <div class="book-details-small">
+                        <h3><%= book.title %></h3>
+                        <% if (book.subtitle) { %>
+                            <p><%= book.subtitle %></p>
+                        <% } %>
+                        <div class="price-display-small"><%= book.price %> SEK</div>
+                    </div>
+                </div>
+                
+                <form class="purchase-form" method="POST" action="/purchase/<%= book.id %>/confirm">
+                    <h2 style="margin-top: 0; color: #2c3e50; margin-bottom: 2rem;">Leveransinformation</h2>
+                    
+                    <div class="form-group">
+                        <label for="full_name">Fullständigt namn *</label>
+                        <input type="text" id="full_name" name="full_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">E-postadress *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Telefonnummer *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Leveransadress *</label>
+                        <textarea id="address" name="address" required placeholder="Gatuadress, postnummer och ort"></textarea>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">
+                            Jag godkänner <a href="/terms" class="terms-link" target="_blank">köpvillkoren</a> och att mina personuppgifter behandlas enligt <a href="/privacy" class="terms-link" target="_blank">integritetspolicyn</a>. *
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="/book/<%= book.id %>" class="btn btn-secondary">Avbryt</a>
+                        <button type="submit" class="btn">Bekräfta köp</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Mikael Dolfe. Alla rättigheter förbehållna.</p>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+</html>
+
