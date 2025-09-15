@@ -49,10 +49,11 @@
         }
         
         .book-subtitle {
-            font-size: 1.5rem;
-            color: #7f8c8d;
+            font-size: 1.9rem;
+            color: #5e6869;
+            /* color: #7f8c8d; */
             font-style: italic;
-            margin-bottom: 1rem;
+            margin-bottom: 3rem;
         }
         
         .book-meta {
@@ -155,7 +156,8 @@
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-radius: 15px;
             text-align: center;
-            border: 2px solid #3498db;
+            /* border: 2px solid #3498db; */
+            border: 2px solid #bdc3c7;
         }
         
         .price-display {
@@ -170,7 +172,7 @@
         }
         
         .price-amount {
-            font-size: 2rem;
+            font-size: 1.6rem;
             color: #e74c3c;
             font-weight: 700;
             font-family: 'Playfair Display', serif;
@@ -223,6 +225,88 @@
             text-decoration: underline;
         }
         
+        /* Book Blurbs Styling */
+        .book-blurbs-section {
+            margin-top: 4rem;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .blurbs-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 3rem;
+            font-family: 'Playfair Display', serif;
+            position: relative;
+        }
+        
+        .blurbs-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+        
+        .blurbs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .blurb-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+            position: relative;
+        }
+        
+        .blurb-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .blurb-card::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 4rem;
+            color: #3498db;
+            font-family: 'Playfair Display', serif;
+            opacity: 0.3;
+        }
+        
+        .blurb-quotation {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .blurb-author {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-align: right;
+            border-top: 1px solid #ecf0f1;
+            padding-top: 1rem;
+        }
+        
         @media (max-width: 768px) {
             .book-content {
                 grid-template-columns: 1fr;
@@ -244,6 +328,24 @@
             
             .book-container {
                 padding: 0 1rem;
+            }
+            
+            .blurbs-title {
+                font-size: 2rem;
+            }
+            
+            .blurbs-grid {
+                grid-template-columns: 1fr;
+                padding: 0 1rem;
+            }
+            
+            .blurb-card {
+                padding: 1.5rem;
+            }
+            
+            .book-blurbs-section {
+                margin-top: 2rem;
+                padding: 2rem 0;
             }
         }
     </style>
@@ -310,6 +412,25 @@
 
                     </div>
                 </div>
+                
+                <!-- Book Blurbs Section -->
+                <% if (blurbs && blurbs.length > 0) { %>
+                    <div class="book-blurbs-section">
+                        <h2 class="blurbs-title">Vad andra säger</h2>
+                        <div class="blurbs-grid">
+                            <% blurbs.forEach(function(blurb) { %>
+                                <div class="blurb-card">
+                                    <div class="blurb-quotation">
+                                        "<%= blurb.quotation %>"
+                                    </div>
+                                    <div class="blurb-author">
+                                        — <%= blurb.name %>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                <% } %>
             </div>
         </section>
     </main>

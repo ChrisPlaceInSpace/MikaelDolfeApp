@@ -77,6 +77,72 @@ class SupabaseService {
         return true;
     }
 
+    // Book blurbs operations
+    async getBookBlurbs(bookId) {
+        const { data, error } = await this.supabase
+            .from('book_blurbs')
+            .select('*')
+            .eq('book_id', bookId)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async getAllBookBlurbs() {
+        const { data, error } = await this.supabase
+            .from('book_blurbs')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async getBlurb(id) {
+        const { data, error } = await this.supabase
+            .from('book_blurbs')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async createBlurb(blurbData) {
+        const { data, error } = await this.supabase
+            .from('book_blurbs')
+            .insert([blurbData])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async updateBlurb(id, blurbData) {
+        const { data, error } = await this.supabase
+            .from('book_blurbs')
+            .update(blurbData)
+            .eq('id', id)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async deleteBlurb(id) {
+        const { error } = await this.supabase
+            .from('book_blurbs')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        return true;
+    }
+
 
     // Blog posts operations
     async getAllBlogPosts() {

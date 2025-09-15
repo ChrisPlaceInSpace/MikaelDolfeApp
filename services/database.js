@@ -122,6 +122,108 @@ class DatabaseManager {
         }
     }
 
+    // Book blurbs operations
+    async getBookBlurbs(bookId) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.getBookBlurbs(bookId);
+        } else {
+            return new Promise((resolve, reject) => {
+                this.sqlite.all('SELECT * FROM book_blurbs WHERE book_id = ? ORDER BY created_at DESC', [bookId], (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows);
+                });
+            });
+        }
+    }
+
+    async getAllBookBlurbs() {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.getAllBookBlurbs();
+        } else {
+            return new Promise((resolve, reject) => {
+                this.sqlite.all('SELECT * FROM book_blurbs ORDER BY created_at DESC', (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows);
+                });
+            });
+        }
+    }
+
+    async getBlurb(id) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.getBlurb(id);
+        } else {
+            return new Promise((resolve, reject) => {
+                this.sqlite.get('SELECT * FROM book_blurbs WHERE id = ?', [id], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+        }
+    }
+
+    async createBlurb(blurbData) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.createBlurb(blurbData);
+        } else {
+            return new Promise((resolve, reject) => {
+                const { book_id, name, quotation, created_at, updated_at } = blurbData;
+                this.sqlite.run(
+                    'INSERT INTO book_blurbs (book_id, name, quotation, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
+                    [book_id, name, quotation, created_at, updated_at],
+                    function(err) {
+                        if (err) reject(err);
+                        else resolve({ id: this.lastID, ...blurbData });
+                    }
+                );
+            });
+        }
+    }
+
+    async updateBlurb(id, blurbData) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.updateBlurb(id, blurbData);
+        } else {
+            return new Promise((resolve, reject) => {
+                // Build dynamic SQL query for partial updates
+                const fields = [];
+                const values = [];
+                
+                Object.keys(blurbData).forEach(key => {
+                    if (blurbData[key] !== undefined) {
+                        fields.push(`${key} = ?`);
+                        values.push(blurbData[key]);
+                    }
+                });
+                
+                if (fields.length === 0) {
+                    return resolve({ id, ...blurbData });
+                }
+                
+                values.push(id);
+                const sql = `UPDATE book_blurbs SET ${fields.join(', ')} WHERE id = ?`;
+                
+                this.sqlite.run(sql, values, function(err) {
+                    if (err) reject(err);
+                    else resolve({ id, ...blurbData });
+                });
+            });
+        }
+    }
+
+    async deleteBlurb(id) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.deleteBlurb(id);
+        } else {
+            return new Promise((resolve, reject) => {
+                this.sqlite.run('DELETE FROM book_blurbs WHERE id = ?', [id], function(err) {
+                    if (err) reject(err);
+                    else resolve(true);
+                });
+            });
+        }
+    }
+
 
     // Blog posts operations
     async getAllBlogPosts() {

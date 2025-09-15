@@ -428,13 +428,13 @@ section {
     -webkit-box-orient: vertical;
 }
 
-.book-subtitle {
+/* .book-subtitle {
     font-size: 0.8rem !important;
     color: #7f8c8d !important;
     font-style: italic;
     margin: 0 0 0.3rem 0 !important;
     line-height: 1.2;
-}
+} */
 
 .book-price {
     margin-bottom: 0.8rem;

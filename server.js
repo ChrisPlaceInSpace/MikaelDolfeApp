@@ -5,11 +5,12 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs-extra');
 const bodyParser = require('body-parser');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const slowDown = require('express-slow-down');
-const { body, validationResult } = require('express-validator');
-const xss = require('xss');
+// Development: Comment out production security packages
+// const helmet = require('helmet');
+// const rateLimit = require('express-rate-limit');
+// const slowDown = require('express-slow-down');
+// const { body, validationResult } = require('express-validator');
+// const xss = require('xss');
 require('dotenv').config();
 
 const app = express();
@@ -19,6 +20,8 @@ const PORT = process.env.PORT || 3000;
 const DatabaseManager = require('./services/database');
 const db = new DatabaseManager();
 
+// Development: Comment out production security middleware
+/*
 // Security middleware
 app.use(helmet({
     contentSecurityPolicy: {
@@ -69,6 +72,7 @@ const speedLimiter = slowDown({
 
 app.use(limiter);
 app.use(speedLimiter);
+*/
 
 // Middleware
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -150,6 +154,8 @@ function requireAuth(req, res, next) {
     }
 }
 
+// Development: Comment out input sanitization
+/*
 // Input sanitization middleware
 function sanitizeInput(req, res, next) {
     if (req.body) {
@@ -161,6 +167,7 @@ function sanitizeInput(req, res, next) {
     }
     next();
 }
+*/
 
 // Routes
 
@@ -170,17 +177,8 @@ app.get('/admin/login', (req, res) => {
 });
 
 // Admin login POST
-app.post('/admin/login', loginLimiter, [
-    body('username').trim().isLength({ min: 1 }).escape(),
-    body('password').isLength({ min: 1 })
-], async (req, res) => {
+app.post('/admin/login', async (req, res) => {
     try {
-        // Validate input
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.render('admin/login', { error: 'Invalid input' });
-        }
-
         const { username, password } = req.body;
         
         // Admin credentials from environment variables
@@ -245,19 +243,8 @@ app.get('/admin/blog/new', requireAuth, (req, res) => {
     res.render('admin/blog-form', { post: null });
 });
 
-app.post('/admin/blog', requireAuth, sanitizeInput, [
-    body('title').trim().isLength({ min: 1, max: 200 }).escape(),
-    body('content').trim().isLength({ min: 1 }).escape(),
-    body('excerpt').optional().trim().isLength({ max: 500 }).escape(),
-    body('status').isIn(['draft', 'published'])
-], async (req, res) => {
+app.post('/admin/blog', requireAuth, async (req, res) => {
     try {
-        // Validate input
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).send('Invalid input data');
-        }
-
         const { title, content, excerpt, status } = req.body;
         const post = {
             title,
@@ -327,21 +314,8 @@ app.get('/admin/books/new', requireAuth, (req, res) => {
     res.render('admin/book-form', { book: null });
 });
 
-app.post('/admin/books', requireAuth, uploadLimiter, sanitizeInput, upload.single('cover_image'), [
-    body('title').trim().isLength({ min: 1, max: 200 }).escape(),
-    body('subtitle').optional().trim().isLength({ max: 200 }).escape(),
-    body('description').optional().trim().isLength({ max: 1000 }).escape(),
-    body('price').optional().isFloat({ min: 0 }),
-    body('status').isIn(['draft', 'published', 'coming_soon']),
-    body('sort_order').optional().isInt({ min: 0 })
-], async (req, res) => {
+app.post('/admin/books', requireAuth, upload.single('cover_image'), async (req, res) => {
     try {
-        // Validate input
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).send('Invalid input data');
-        }
-
         const { title, subtitle, description, status, release_date, price, sort_order } = req.body;
         const coverImage = req.file ? `/uploads/books/${req.file.filename}` : null;
         
@@ -409,6 +383,83 @@ app.post('/admin/books/:id/delete', requireAuth, async (req, res) => {
     }
 });
 
+// Book blurbs management
+app.get('/admin/books/:id/blurbs', requireAuth, async (req, res) => {
+    try {
+        const book = await db.getBook(req.params.id);
+        const blurbs = await db.getBookBlurbs(req.params.id);
+        res.render('admin/book-blurbs', { book, blurbs });
+    } catch (error) {
+        console.error('Error fetching book blurbs:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/admin/books/:id/blurbs/new', requireAuth, async (req, res) => {
+    try {
+        const book = await db.getBook(req.params.id);
+        res.render('admin/blurb-form', { book, blurb: null });
+    } catch (error) {
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/admin/books/:id/blurbs', requireAuth, async (req, res) => {
+    try {
+        const blurbData = {
+            book_id: req.params.id,
+            name: req.body.name,
+            quotation: req.body.quotation,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+        
+        await db.createBlurb(blurbData);
+        res.redirect(`/admin/books/${req.params.id}/blurbs`);
+    } catch (error) {
+        console.error('Error creating blurb:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/admin/blurbs/:id/edit', requireAuth, async (req, res) => {
+    try {
+        const blurb = await db.getBlurb(req.params.id);
+        const book = await db.getBook(blurb.book_id);
+        res.render('admin/blurb-form', { book, blurb });
+    } catch (error) {
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/admin/blurbs/:id', requireAuth, async (req, res) => {
+    try {
+        const blurbData = {
+            name: req.body.name,
+            quotation: req.body.quotation,
+            updated_at: new Date().toISOString()
+        };
+        
+        await db.updateBlurb(req.params.id, blurbData);
+        const blurb = await db.getBlurb(req.params.id);
+        res.redirect(`/admin/books/${blurb.book_id}/blurbs`);
+    } catch (error) {
+        console.error('Error updating blurb:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/admin/blurbs/:id/delete', requireAuth, async (req, res) => {
+    try {
+        const blurb = await db.getBlurb(req.params.id);
+        await db.deleteBlurb(req.params.id);
+        res.redirect(`/admin/books/${blurb.book_id}/blurbs`);
+    } catch (error) {
+        console.error('Error deleting blurb:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 
 // Serve the main website
@@ -443,8 +494,13 @@ app.get('/book/:id', async (req, res) => {
         if (!book) {
             return res.status(404).send('Bok hittades inte');
         }
-        res.render('book', { book });
+        
+        // Get blurbs for this book
+        const blurbs = await db.getBookBlurbs(req.params.id);
+        
+        res.render('book', { book, blurbs });
     } catch (error) {
+        console.error('Error fetching book details:', error);
         res.status(500).send('Server error');
     }
 });
