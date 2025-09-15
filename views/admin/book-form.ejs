@@ -330,6 +330,16 @@
                     <a href="/admin/books" class="btn btn-secondary">Avbryt</a>
                 </div>
             </form>
+            
+            <% if (book) { %>
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e0e0e0;">
+                    <h3 style="margin-bottom: 1rem; color: #2c3e50;">Hantera Blurbs</h3>
+                    <p style="margin-bottom: 1rem; color: #666;">Lägg till och hantera blurbs (recensioner och citat) för denna bok.</p>
+                    <a href="/admin/books/<%= book.id %>/blurbs" class="btn" style="background: linear-gradient(135deg, #27ae60, #229954);">
+                        Hantera Blurbs
+                    </a>
+                </div>
+            <% } %>
         </div>
     </div>
     

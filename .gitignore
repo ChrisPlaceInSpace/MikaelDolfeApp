@@ -2,6 +2,7 @@ ADMIN_SETUP.md
 README.md
 SUPABASE_SETUP.md
 SECURITY_GUIDE.md
+DEVELOPMENT_SETUP.md
 
 node_modules
 database

@@ -27,12 +27,23 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS book_blurbs (
+    id BIGSERIAL PRIMARY KEY,
+    book_id BIGINT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+    name VARCHAR(200) NOT NULL,
+    quotation TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_books_status ON books(status);
 CREATE INDEX IF NOT EXISTS idx_books_created_at ON books(created_at);
 CREATE INDEX IF NOT EXISTS idx_books_sort_order ON books(sort_order);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_created_at ON blog_posts(created_at);
+CREATE INDEX IF NOT EXISTS idx_book_blurbs_book_id ON book_blurbs(book_id);
+CREATE INDEX IF NOT EXISTS idx_book_blurbs_created_at ON book_blurbs(created_at);
 
 -- Add price column to existing books table (if it doesn't exist)
 ALTER TABLE books ADD COLUMN IF NOT EXISTS price DECIMAL(10,2);
@@ -43,6 +54,7 @@ ALTER TABLE books ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 -- Enable Row Level Security (RLS)
 ALTER TABLE books ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE book_blurbs ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access
 CREATE POLICY "Public read access for books" ON books
@@ -51,6 +63,9 @@ CREATE POLICY "Public read access for books" ON books
 
 CREATE POLICY "Public read access for blog posts" ON blog_posts
     FOR SELECT USING (status = 'published');
+
+CREATE POLICY "Public read access for book blurbs" ON book_blurbs
+    FOR SELECT USING (true);
 
 -- Create policies for admin access (using service role key bypasses RLS)
 -- For authenticated admin users, we'll use the service role key in our backend
@@ -75,6 +90,10 @@ DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON blog_posts;
 CREATE TRIGGER update_blog_posts_updated_at BEFORE UPDATE ON blog_posts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_book_blurbs_updated_at ON book_blurbs;
+CREATE TRIGGER update_book_blurbs_updated_at BEFORE UPDATE ON book_blurbs
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- Insert sample data (optional)
 INSERT INTO books (title, subtitle, description, status, release_date) VALUES
 ('Älska har sin tid - Boken om Nancy', 'Boken om Nancy', 'En gripande berättelse om kärlek, tid och livets utmaningar', 'published', '2024-01-01')
@@ -83,5 +102,12 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO blog_posts (title, excerpt, content, status) VALUES
 ('Välkommen till min blogg', 'En introduktion till min nya blogg om skrivande och konst', 'Välkommen till min blogg! Här kommer jag att dela tankar om skrivande, konst och livet som författare. Jag hoppas att du kommer att finna inspiration och intressanta perspektiv här.', 'published')
+ON CONFLICT (id) DO NOTHING;
+
+-- Insert sample blurbs for the first book
+INSERT INTO book_blurbs (book_id, name, quotation) VALUES
+(3, 'Anna Lindberg, Litteraturkritiker', 'En mästerlig berättelse som fångar läsaren från första sidan. Mikael Dolfe har skapat en roman som både rör och utmanar.'),
+(3, 'Erik Johansson, Författare', 'En gripande skildring av kärlek och förlust. Dolfe visar stor mognad i sitt skrivande och levererar en bok som kommer att stanna hos läsaren länge efter att sista sidan är läst.'),
+(3, 'Maria Svensson, Bokhandlare', 'Våra kunder älskar denna bok! Den har blivit en av våra bästsäljare och vi får ständigt positiva kommentarer från läsare som uppskattar både berättelsen och skrivstilen.')
 ON CONFLICT (id) DO NOTHING;
 

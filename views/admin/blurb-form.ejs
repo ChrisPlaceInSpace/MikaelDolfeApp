@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= blurb ? 'Redigera Blurb' : 'Ny Blurb' %> - <%= book.title %> - Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        .admin-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .admin-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .admin-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 0.5rem;
+        }
+        
+        .book-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .book-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+        
+        .book-subtitle {
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+        
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .breadcrumb {
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .breadcrumb a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .form-help {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="breadcrumb">
+            <a href="/admin">Admin</a> > 
+            <a href="/admin/books">Böcker</a> > 
+            <a href="/admin/books/<%= book.id %>/edit">Redigera bok</a> > 
+            <a href="/admin/books/<%= book.id %>/blurbs">Blurbs</a> > 
+            <%= blurb ? 'Redigera' : 'Ny blurb' %>
+        </div>
+        
+        <div class="admin-header">
+            <h1 class="admin-title"><%= blurb ? 'Redigera Blurb' : 'Ny Blurb' %></h1>
+        </div>
+        
+        <div class="book-info">
+            <h2 class="book-title"><%= book.title %></h2>
+            <% if (book.subtitle) { %>
+                <p class="book-subtitle"><%= book.subtitle %></p>
+            <% } %>
+        </div>
+        
+        <div class="form-container">
+            <form method="POST" action="<%= blurb ? '/admin/blurbs/' + blurb.id : '/admin/books/' + book.id + '/blurbs' %>">
+                <div class="form-group">
+                    <label for="name" class="form-label">Namn</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        class="form-input" 
+                        value="<%= blurb ? blurb.name : '' %>"
+                        placeholder="t.ex. Anna Lindberg, Litteraturkritiker"
+                        required
+                    >
+                    <div class="form-help">Namnet på personen som gav blurben, inklusive titel eller roll om tillämpligt.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quotation" class="form-label">Citat</label>
+                    <textarea 
+                        id="quotation" 
+                        name="quotation" 
+                        class="form-textarea" 
+                        placeholder="Skriv blurben här..."
+                        required
+                    ><%= blurb ? blurb.quotation : '' %></textarea>
+                    <div class="form-help">Det faktiska citatet eller recensionen som ska visas på boksidan.</div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">
+                        <%= blurb ? 'Uppdatera blurb' : 'Skapa blurb' %>
+                    </button>
+                    <a href="/admin/books/<%= book.id %>/blurbs" class="btn btn-secondary">Avbryt</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

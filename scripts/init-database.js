@@ -55,6 +55,25 @@ db.serialize(() => {
         }
     });
 
+    // Book blurbs table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS book_blurbs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            book_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            quotation TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+        )
+    `, (err) => {
+        if (err) {
+            console.error('Error creating book_blurbs table:', err);
+        } else {
+            console.log('✓ book_blurbs table created');
+        }
+    });
+
     // Add price and sort_order columns to existing books table if they don't exist
     db.run(`ALTER TABLE books ADD COLUMN IF NOT EXISTS price DECIMAL(10,2)`, (err) => {
         if (err) {
@@ -111,6 +130,21 @@ db.serialize(() => {
         }
     });
 
+    // Insert sample blurbs for the first book
+    db.run(`
+        INSERT OR IGNORE INTO book_blurbs (book_id, name, quotation, created_at, updated_at) 
+        VALUES 
+        (1, 'Anna Lindberg, Litteraturkritiker', 'En mästerlig berättelse som fångar läsaren från första sidan. Mikael Dolfe har skapat en roman som både rör och utmanar.', '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
+        (1, 'Erik Johansson, Författare', 'En gripande skildring av kärlek och förlust. Dolfe visar stor mognad i sitt skrivande och levererar en bok som kommer att stanna hos läsaren länge efter att sista sidan är läst.', '2024-12-15 10:00:00', '2024-12-15 10:00:00'),
+        (1, 'Maria Svensson, Bokhandlare', 'Våra kunder älskar denna bok! Den har blivit en av våra bästsäljare och vi får ständigt positiva kommentarer från läsare som uppskattar både berättelsen och skrivstilen.', '2024-12-15 10:00:00', '2024-12-15 10:00:00')
+    `, (err) => {
+        if (err) {
+            console.error('Error inserting sample blurbs:', err);
+        } else {
+            console.log('✓ Sample blurbs inserted');
+        }
+    });
+
 
     // Create indexes for better performance
     db.run(`CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status)`, (err) => {
@@ -134,6 +168,14 @@ db.serialize(() => {
             console.error('Error creating books sort order index:', err);
         } else {
             console.log('✓ Books sort order index created');
+        }
+    });
+
+    db.run(`CREATE INDEX IF NOT EXISTS idx_book_blurbs_book_id ON book_blurbs(book_id)`, (err) => {
+        if (err) {
+            console.error('Error creating book blurbs index:', err);
+        } else {
+            console.log('✓ Book blurbs index created');
         }
     });
 
