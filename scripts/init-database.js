@@ -74,17 +74,43 @@ db.serialize(() => {
         }
     });
 
-    // Add price and sort_order columns to existing books table if they don't exist
-    db.run(`ALTER TABLE books ADD COLUMN IF NOT EXISTS price DECIMAL(10,2)`, (err) => {
+    // Orders table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            book_id INTEGER NOT NULL,
+            stripe_payment_intent_id TEXT UNIQUE NOT NULL,
+            customer_name TEXT NOT NULL,
+            customer_email TEXT NOT NULL,
+            customer_phone TEXT,
+            delivery_address TEXT NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            currency TEXT DEFAULT 'SEK',
+            status TEXT DEFAULT 'pending',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (book_id) REFERENCES books(id)
+        )
+    `, (err) => {
         if (err) {
+            console.error('Error creating orders table:', err);
+        } else {
+            console.log('✓ orders table created');
+        }
+    });
+
+    // Add price and sort_order columns to existing books table if they don't exist
+    // SQLite doesn't support IF NOT EXISTS for ALTER TABLE, so we'll use a different approach
+    db.run(`ALTER TABLE books ADD COLUMN price DECIMAL(10,2)`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
             console.error('Error adding price column:', err);
         } else {
             console.log('✓ Price column added/verified');
         }
     });
 
-    db.run(`ALTER TABLE books ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0`, (err) => {
-        if (err) {
+    db.run(`ALTER TABLE books ADD COLUMN sort_order INTEGER DEFAULT 0`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
             console.error('Error adding sort_order column:', err);
         } else {
             console.log('✓ Sort order column added/verified');
@@ -176,6 +202,14 @@ db.serialize(() => {
             console.error('Error creating book blurbs index:', err);
         } else {
             console.log('✓ Book blurbs index created');
+        }
+    });
+
+    db.run(`CREATE INDEX IF NOT EXISTS idx_orders_stripe_payment_intent_id ON orders(stripe_payment_intent_id)`, (err) => {
+        if (err) {
+            console.error('Error creating orders index:', err);
+        } else {
+            console.log('✓ Orders index created');
         }
     });
 

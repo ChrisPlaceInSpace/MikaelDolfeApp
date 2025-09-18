@@ -224,6 +224,81 @@ class DatabaseManager {
         }
     }
 
+    // Orders operations
+    async createOrder(orderData) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.createOrder(orderData);
+        } else {
+            return new Promise((resolve, reject) => {
+                const { book_id, stripe_payment_intent_id, customer_name, customer_email, customer_phone, delivery_address, amount, currency, status, created_at, updated_at } = orderData;
+                this.sqlite.run(
+                    'INSERT INTO orders (book_id, stripe_payment_intent_id, customer_name, customer_email, customer_phone, delivery_address, amount, currency, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [book_id, stripe_payment_intent_id, customer_name, customer_email, customer_phone, JSON.stringify(delivery_address), amount, currency, status, created_at, updated_at],
+                    function(err) {
+                        if (err) reject(err);
+                        else resolve({ id: this.lastID, ...orderData });
+                    }
+                );
+            });
+        }
+    }
+
+    async getOrderByPaymentIntentId(paymentIntentId) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.getOrderByPaymentIntentId(paymentIntentId);
+        } else {
+            return new Promise((resolve, reject) => {
+                this.sqlite.get('SELECT * FROM orders WHERE stripe_payment_intent_id = ?', [paymentIntentId], (err, row) => {
+                    if (err) reject(err);
+                    else {
+                        if (row && row.delivery_address) {
+                            row.delivery_address = JSON.parse(row.delivery_address);
+                        }
+                        resolve(row);
+                    }
+                });
+            });
+        }
+    }
+
+    async updateOrderStatus(paymentIntentId, status) {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.updateOrderStatus(paymentIntentId, status);
+        } else {
+            return new Promise((resolve, reject) => {
+                this.sqlite.run(
+                    'UPDATE orders SET status = ?, updated_at = ? WHERE stripe_payment_intent_id = ?',
+                    [status, new Date().toISOString(), paymentIntentId],
+                    function(err) {
+                        if (err) reject(err);
+                        else resolve(true);
+                    }
+                );
+            });
+        }
+    }
+
+    async getAllOrders() {
+        if (this.databaseType === 'supabase') {
+            return await this.supabase.getAllOrders();
+        } else {
+            return new Promise((resolve, reject) => {
+                this.sqlite.all('SELECT * FROM orders ORDER BY created_at DESC', (err, rows) => {
+                    if (err) reject(err);
+                    else {
+                        const processedRows = rows.map(row => {
+                            if (row.delivery_address) {
+                                row.delivery_address = JSON.parse(row.delivery_address);
+                            }
+                            return row;
+                        });
+                        resolve(processedRows);
+                    }
+                });
+            });
+        }
+    }
+
 
     // Blog posts operations
     async getAllBlogPosts() {

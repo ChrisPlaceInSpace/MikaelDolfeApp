@@ -36,6 +36,21 @@ CREATE TABLE IF NOT EXISTS book_blurbs (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS orders (
+    id BIGSERIAL PRIMARY KEY,
+    book_id BIGINT NOT NULL REFERENCES books(id),
+    stripe_payment_intent_id VARCHAR(255) UNIQUE NOT NULL,
+    customer_name VARCHAR(200) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(50),
+    delivery_address JSONB NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'SEK',
+    status VARCHAR(50) DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_books_status ON books(status);
 CREATE INDEX IF NOT EXISTS idx_books_created_at ON books(created_at);
@@ -44,6 +59,9 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_created_at ON blog_posts(created_at);
 CREATE INDEX IF NOT EXISTS idx_book_blurbs_book_id ON book_blurbs(book_id);
 CREATE INDEX IF NOT EXISTS idx_book_blurbs_created_at ON book_blurbs(created_at);
+CREATE INDEX IF NOT EXISTS idx_orders_stripe_payment_intent_id ON orders(stripe_payment_intent_id);
+CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 
 -- Add price column to existing books table (if it doesn't exist)
 ALTER TABLE books ADD COLUMN IF NOT EXISTS price DECIMAL(10,2);
@@ -55,6 +73,7 @@ ALTER TABLE books ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 ALTER TABLE books ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE book_blurbs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access
 CREATE POLICY "Public read access for books" ON books
@@ -65,6 +84,9 @@ CREATE POLICY "Public read access for blog posts" ON blog_posts
     FOR SELECT USING (status = 'published');
 
 CREATE POLICY "Public read access for book blurbs" ON book_blurbs
+    FOR SELECT USING (true);
+
+CREATE POLICY "Public read access for orders" ON orders
     FOR SELECT USING (true);
 
 -- Create policies for admin access (using service role key bypasses RLS)
@@ -92,6 +114,10 @@ CREATE TRIGGER update_blog_posts_updated_at BEFORE UPDATE ON blog_posts
 
 DROP TRIGGER IF EXISTS update_book_blurbs_updated_at ON book_blurbs;
 CREATE TRIGGER update_book_blurbs_updated_at BEFORE UPDATE ON book_blurbs
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
+CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert sample data (optional)

@@ -8,198 +8,18 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        main {
-            flex: 1;
-        }
-        
-        .purchase-page {
-            padding: 4rem 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            min-height: calc(100vh - 200px);
-        }
-        
         .purchase-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 2rem;
+            margin-top: 8rem; /* Add space for fixed header */
         }
         
         .purchase-header {
             text-align: center;
             margin-bottom: 3rem;
-        }
-        
-        .purchase-title {
-            font-size: 2.5rem;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            font-family: 'Playfair Display', serif;
-        }
-        
-        .book-info {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-        
-        .book-cover-small {
-            width: 120px;
-            height: 160px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        
-        .book-cover-placeholder-small {
-            width: 120px;
-            height: 160px;
-            background: linear-gradient(135deg, #e9ecef, #dee2e6);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6c757d;
-            font-size: 2rem;
-        }
-        
-        .book-details-small h3 {
-            margin: 0 0 0.5rem 0;
-            color: #2c3e50;
-            font-size: 1.5rem;
-        }
-        
-        .book-details-small p {
-            margin: 0 0 1rem 0;
-            color: #7f8c8d;
-        }
-        
-        .price-display-small {
-            font-size: 1.5rem;
-            color: #e74c3c;
-            font-weight: 700;
-        }
-        
-        .purchase-form {
-            background: white;
-            padding: 3rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            margin: 2rem 0;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-            transform: scale(1.2);
-        }
-        
-        .checkbox-group label {
-            margin: 0;
-            font-weight: normal;
-            line-height: 1.5;
-        }
-        
-        .terms-link {
-            color: #3498db;
-            text-decoration: none;
-        }
-        
-        .terms-link:hover {
-            text-decoration: underline;
-        }
-        
-        .form-actions {
-            text-align: center;
-            margin-top: 2rem;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-            margin-right: 1rem;
-        }
-        
-        .btn-secondary:hover {
-            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
         }
         
         .back-link {
@@ -215,24 +35,218 @@
             text-decoration: underline;
         }
         
-        .breadcrumb {
+        .purchase-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .book-info {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
             margin-bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .book-cover {
+            width: 150px;
+            height: 225px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .book-cover-placeholder {
+            width: 150px;
+            height: 225px;
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
             font-size: 0.9rem;
-            color: #7f8c8d;
+            text-align: center;
         }
         
-        .breadcrumb a {
-            color: #3498db;
+        .book-details h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .book-details p {
+            text-align: center;
+        }
+        
+        .book-price {
+            font-size: 1.8rem;
+            color: #e74c3c;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+        }
+        
+        .purchase-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 0.2rem;
+        }
+        
+        .checkbox-group label {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .payment-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+        
+        .payment-element {
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
             text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
         }
         
-        .breadcrumb a:hover {
-            text-decoration: underline;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            margin-top: 1rem;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         @media (max-width: 768px) {
             .purchase-container {
-                padding: 0 1rem;
+                padding: 1rem;
+                margin-top: 12rem; /* Extra space for mobile header */
             }
             
             .purchase-title {
@@ -242,6 +256,14 @@
             .book-info {
                 flex-direction: column;
                 text-align: center;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .book-cover,
+            .book-cover-placeholder {
+                width: 120px;
+                height: 180px;
             }
             
             .form-row {
@@ -249,7 +271,58 @@
             }
             
             .purchase-form {
-                padding: 2rem;
+                padding: 1.5rem;
+            }
+            
+            .form-section h3 {
+                font-size: 1.2rem;
+            }
+            
+            .payment-section {
+                padding: 1rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .purchase-container {
+                padding: 0.5rem;
+            }
+            
+            .purchase-title {
+                font-size: 1.8rem;
+            }
+            
+            .book-info {
+                padding: 1rem;
+            }
+            
+            .book-cover,
+            .book-cover-placeholder {
+                width: 100px;
+                height: 150px;
+            }
+            
+            .purchase-form {
+                padding: 1rem;
+            }
+            
+            .form-input,
+            .form-textarea {
+                padding: 0.625rem;
+                font-size: 0.9rem;
+            }
+            
+            .form-label {
+                font-size: 0.9rem;
+            }
+            
+            .payment-section {
+                padding: 0.75rem;
             }
         }
     </style>
@@ -258,81 +331,230 @@
     <%- include('components/header') %>
 
     <main>
-        <section class="purchase-page">
-            <div class="purchase-container">
-                <a href="/book/<%= book.id %>" class="back-link">← Tillbaka till boken</a>
+        <div class="purchase-container">
+            <a href="/book/<%= book.id %>" class="back-link">← Tillbaka till boken</a>
+            
+            <div class="purchase-header">
+                <h1 class="purchase-title">Köp bok</h1>
+            </div>
+            
+            <div class="book-info">
+                <% if (book.cover_image) { %>
+                    <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover">
+                <% } else { %>
+                    <div class="book-cover-placeholder">
+                        Omslagsbild saknas
+                    </div>
+                <% } %>
                 
-                <div class="breadcrumb">
-                    <a href="/">Hem</a> > <a href="/#bocker">Böcker</a> > <a href="/book/<%= book.id %>"><%= book.title %></a> > Köp
-                </div>
-                
-                <div class="purchase-header">
-                    <h1 class="purchase-title">Köp boken</h1>
-                </div>
-                
-                <div class="book-info">
-                    <% if (book.cover_image) { %>
-                        <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover-small">
-                    <% } else { %>
-                        <div class="book-cover-placeholder-small">
-                            📖
-                        </div>
+                <div class="book-details">
+                    <h3><%= book.title %></h3>
+                    <% if (book.subtitle) { %>
+                        <p style="color: #7f8c8d; font-style: italic; margin-bottom: 1rem;"><%= book.subtitle %></p>
                     <% } %>
-                    <div class="book-details-small">
-                        <h3><%= book.title %></h3>
-                        <% if (book.subtitle) { %>
-                            <p><%= book.subtitle %></p>
-                        <% } %>
-                        <div class="price-display-small"><%= book.price %> SEK</div>
+                    <div class="book-price"><%= book.price %> SEK</div>
+                </div>
+            </div>
+            
+            <form id="purchase-form" class="purchase-form">
+                <div class="form-section">
+                    <h3>Kontaktinformation</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Fullständigt namn <span class="required">*</span></label>
+                            <input type="text" id="name" name="name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">E-postadress <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Telefonnummer</label>
+                        <input type="tel" id="phone" name="phone" class="form-input">
                     </div>
                 </div>
                 
-                <form class="purchase-form" method="POST" action="/purchase/<%= book.id %>/confirm">
-                    <h2 style="margin-top: 0; color: #2c3e50; margin-bottom: 2rem;">Leveransinformation</h2>
-                    
+                <div class="form-section">
+                    <h3>Leveransadress</h3>
                     <div class="form-group">
-                        <label for="full_name">Fullständigt namn *</label>
-                        <input type="text" id="full_name" name="full_name" required>
+                        <label for="address" class="form-label">Adress <span class="required">*</span></label>
+                        <input type="text" id="address" name="address" class="form-input" required>
                     </div>
-                    
                     <div class="form-group">
-                        <label for="email">E-postadress *</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="address2" class="form-label">Adressrad 2 (valfritt)</label>
+                        <input type="text" id="address2" name="address2" class="form-input">
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Telefonnummer *</label>
-                        <input type="tel" id="phone" name="phone" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="postalCode" class="form-label">Postnummer <span class="required">*</span></label>
+                            <input type="text" id="postalCode" name="postalCode" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="city" class="form-label">Stad <span class="required">*</span></label>
+                            <input type="text" id="city" name="city" class="form-input" required>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="address">Leveransadress *</label>
-                        <textarea id="address" name="address" required placeholder="Gatuadress, postnummer och ort"></textarea>
-                    </div>
-                    
+                </div>
+                
+                <div class="form-section">
                     <div class="checkbox-group">
                         <input type="checkbox" id="terms" name="terms" required>
-                        <label for="terms">
-                            Jag godkänner <a href="/terms" class="terms-link" target="_blank">köpvillkoren</a> och att mina personuppgifter behandlas enligt <a href="/privacy" class="terms-link" target="_blank">integritetspolicyn</a>. *
-                        </label>
+                        <label for="terms">Jag godkänner <a href="#" target="_blank">köpvillkoren</a> och <a href="#" target="_blank">integritetspolicyn</a> <span class="required">*</span></label>
                     </div>
-                    
-                    <div class="form-actions">
-                        <a href="/book/<%= book.id %>" class="btn btn-secondary">Avbryt</a>
-                        <button type="submit" class="btn">Bekräfta köp</button>
+                </div>
+                
+                <% if (stripeConfigured) { %>
+                    <div class="payment-section">
+                        <h3>Betalning</h3>
+                        <div class="payment-element" id="payment-element">
+                            <!-- Stripe Elements will be inserted here -->
+                        </div>
+                        <div id="payment-message" class="error-message" style="display: none;"></div>
                     </div>
-                </form>
-            </div>
-        </section>
+                <% } else { %>
+                    <div class="payment-section" style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 1.5rem; border-radius: 10px;">
+                        <h3 style="color: #856404;">Betalning</h3>
+                        <p style="color: #856404; margin-bottom: 1rem;">
+                            Stripe är inte konfigurerat än. För att aktivera betalningar, lägg till dina Stripe API-nycklar i .env-filen.
+                        </p>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; font-family: monospace; font-size: 0.9rem;">
+                            STRIPE_SECRET_KEY=sk_test_your_key_here<br>
+                            STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
+                        </div>
+                    </div>
+                <% } %>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Bearbetar betalning...</p>
+                </div>
+                
+                <button type="submit" id="submit-button" class="btn" <%= !stripeConfigured ? 'disabled' : '' %>>
+                    <% if (stripeConfigured) { %>
+                        Betala <%= book.price %> SEK
+                    <% } else { %>
+                        Stripe inte konfigurerat
+                    <% } %>
+                </button>
+            </form>
+        </div>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Mikael Dolfe. Alla rättigheter förbehållna.</p>
-        </div>
-    </footer>
+    <%- include('components/footer') %>
 
     <script src="/script.js"></script>
+    <script>
+        // Initialize Stripe
+        const stripe = Stripe('<%= stripePublishableKey %>');
+        let elements;
+        let paymentElement;
+        
+        // Form elements
+        const form = document.getElementById('purchase-form');
+        const submitButton = document.getElementById('submit-button');
+        const loading = document.getElementById('loading');
+        const paymentMessage = document.getElementById('payment-message');
+        
+        // Initialize payment form
+        async function initializePayment() {
+            try {
+                // Get form data
+                const formData = new FormData(form);
+                const customerInfo = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    deliveryAddress: {
+                        address: formData.get('address'),
+                        address2: formData.get('address2'),
+                        postalCode: formData.get('postalCode'),
+                        city: formData.get('city')
+                    }
+                };
+                
+                // Create payment intent
+                const response = await fetch('/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bookId: '<%= book.id %>',
+                        customerInfo: customerInfo
+                    })
+                });
+                
+                const { clientSecret, error } = await response.json();
+                
+                if (error) {
+                    showMessage(error, 'error');
+                    return;
+                }
+                
+                // Initialize Stripe Elements
+                elements = stripe.elements({ clientSecret });
+                paymentElement = elements.create('payment');
+                paymentElement.mount('#payment-element');
+                
+            } catch (error) {
+                console.error('Error initializing payment:', error);
+                showMessage('Ett fel uppstod vid initialisering av betalningen.', 'error');
+            }
+        }
+        
+        // Handle form submission
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            if (!paymentElement) {
+                showMessage('Betalningsformuläret är inte redo än.', 'error');
+                return;
+            }
+            
+            setLoading(true);
+            
+            try {
+                const { error } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: `${window.location.origin}/payment/success`,
+                    },
+                });
+                
+                if (error) {
+                    showMessage(error.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error confirming payment:', error);
+                showMessage('Ett fel uppstod vid betalningen.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        // Show/hide loading state
+        function setLoading(isLoading) {
+            submitButton.disabled = isLoading;
+            loading.style.display = isLoading ? 'block' : 'none';
+        }
+        
+        // Show error/success messages
+        function showMessage(message, type) {
+            paymentMessage.textContent = message;
+            paymentMessage.style.display = 'block';
+            paymentMessage.style.color = type === 'error' ? '#e74c3c' : '#27ae60';
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize payment when form is valid
+            form.addEventListener('input', () => {
+                if (form.checkValidity() && !paymentElement) {
+                    initializePayment();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
-

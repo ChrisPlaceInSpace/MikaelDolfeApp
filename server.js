@@ -20,6 +20,10 @@ const PORT = process.env.PORT || 3000;
 const DatabaseManager = require('./services/database');
 const db = new DatabaseManager();
 
+// Stripe setup
+const StripeService = require('./services/stripe');
+const stripeService = new StripeService();
+
 // Development: Comment out production security middleware
 /*
 // Security middleware
@@ -460,6 +464,17 @@ app.post('/admin/blurbs/:id/delete', requireAuth, async (req, res) => {
     }
 });
 
+// Orders management
+app.get('/admin/orders', requireAuth, async (req, res) => {
+    try {
+        const orders = await db.getAllOrders();
+        res.render('admin/orders', { orders });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 
 // Serve the main website
@@ -518,56 +533,131 @@ app.get('/blog/:id', async (req, res) => {
     }
 });
 
-// Purchase flow
+// Purchase flow with Stripe integration
 app.get('/purchase/:id', async (req, res) => {
     try {
         const book = await db.getBook(req.params.id);
         if (!book) {
             return res.status(404).send('Book not found');
         }
-        if (!book.price) {
+        if (!book.price || book.price <= 0) {
             return res.status(400).send('This book is not available for purchase');
         }
-        res.render('purchase', { book });
+        
+        const stripePublishableKey = stripeService.getPublishableKey();
+        const stripeConfigured = !!process.env.STRIPE_SECRET_KEY;
+        res.render('purchase', { book, stripePublishableKey, stripeConfigured });
     } catch (error) {
         console.error('Error fetching book for purchase:', error);
         res.status(500).send('Server error');
     }
 });
 
-app.post('/purchase/:id/confirm', async (req, res) => {
+// Create payment intent
+app.post('/create-payment-intent', async (req, res) => {
     try {
-        const { full_name, email, phone, address, terms } = req.body;
+        const { bookId, customerInfo } = req.body;
         
         // Validate required fields
-        if (!full_name || !email || !phone || !address || !terms) {
-            return res.status(400).send('All fields are required');
+        if (!bookId || !customerInfo || !customerInfo.name || !customerInfo.email || !customerInfo.deliveryAddress) {
+            return res.status(400).json({ error: 'Missing required fields' });
         }
         
-        const book = await db.getBook(req.params.id);
+        const book = await db.getBook(bookId);
         if (!book) {
-            return res.status(404).send('Book not found');
+            return res.status(404).json({ error: 'Book not found' });
         }
         
-        // For now, just render confirmation page
-        // Later this will send email and redirect to payment
-        const purchase = {
-            full_name,
-            email,
-            phone,
-            address,
-            book_id: book.id,
-            price: book.price,
-            timestamp: new Date().toISOString()
+        if (!book.price || book.price <= 0) {
+            return res.status(400).json({ error: 'Book not available for purchase' });
+        }
+        
+        // Create payment intent
+        const paymentIntent = await stripeService.createPaymentIntent(book, customerInfo);
+        
+        // Create order record
+        const orderData = {
+            book_id: bookId,
+            stripe_payment_intent_id: paymentIntent.paymentIntentId,
+            customer_name: customerInfo.name,
+            customer_email: customerInfo.email,
+            customer_phone: customerInfo.phone || null,
+            delivery_address: customerInfo.deliveryAddress,
+            amount: book.price,
+            currency: 'SEK',
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
         };
         
-        // TODO: Send email to Mikael Dolfe with purchase details
-        // TODO: Integrate with payment processor (Stripe, etc.)
+        await db.createOrder(orderData);
         
-        res.render('purchase-confirmation', { book, purchase });
+        res.json({
+            clientSecret: paymentIntent.clientSecret,
+            paymentIntentId: paymentIntent.paymentIntentId
+        });
     } catch (error) {
-        console.error('Error processing purchase:', error);
+        console.error('Error creating payment intent:', error);
+        res.status(500).json({ error: 'Failed to create payment intent' });
+    }
+});
+
+// Payment success page
+app.get('/payment/success', async (req, res) => {
+    try {
+        const { payment_intent } = req.query;
+        
+        if (!payment_intent) {
+            return res.status(400).send('Payment intent ID required');
+        }
+        
+        const order = await db.getOrderByPaymentIntentId(payment_intent);
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+        
+        const book = await db.getBook(order.book_id);
+        
+        res.render('payment-success', { order, book });
+    } catch (error) {
+        console.error('Error loading payment success page:', error);
         res.status(500).send('Server error');
+    }
+});
+
+// Payment failure page
+app.get('/payment/failure', (req, res) => {
+    res.render('payment-failure');
+});
+
+// Stripe webhook handler
+app.post('/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    
+    try {
+        const event = stripeService.verifyWebhookSignature(req.body, sig);
+        
+        switch (event.type) {
+            case 'payment_intent.succeeded':
+                const paymentIntent = event.data.object;
+                await db.updateOrderStatus(paymentIntent.id, 'completed');
+                console.log('Payment succeeded:', paymentIntent.id);
+                break;
+                
+            case 'payment_intent.payment_failed':
+                const failedPayment = event.data.object;
+                await db.updateOrderStatus(failedPayment.id, 'failed');
+                console.log('Payment failed:', failedPayment.id);
+                break;
+                
+            default:
+                console.log(`Unhandled event type ${event.type}`);
+        }
+        
+        res.json({received: true});
+    } catch (error) {
+        console.error('Webhook error:', error);
+        res.status(400).send(`Webhook Error: ${error.message}`);
     }
 });
 
