@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betalning misslyckades - Mikael Dolfe</title>
+    <meta name="description" content="Din betalning kunde inte genomföras">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        .failure-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 8rem; /* Add space for fixed header */
+        }
+        
+        .failure-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .failure-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .failure-message {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+        
+        .help-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .help-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .help-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .help-list li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+        
+        .help-list li::before {
+            content: "•";
+            color: #3498db;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .contact-info {
+            background: #e8f4fd;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #3498db;
+        }
+        
+        .contact-info h4 {
+            color: #3498db;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-info p {
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .failure-container {
+                padding: 1rem;
+                margin-top: 10rem; /* Extra space for mobile header */
+            }
+            
+            .failure-title {
+                font-size: 2rem;
+            }
+            
+            .failure-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .failure-message {
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .help-section,
+            .contact-info {
+                padding: 1.5rem;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .failure-container {
+                padding: 0.5rem;
+            }
+            
+            .failure-title {
+                font-size: 1.8rem;
+            }
+            
+            .failure-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.8rem;
+            }
+            
+            .help-section,
+            .contact-info {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('components/header') %>
+
+    <main>
+        <div class="failure-container">
+            <div class="failure-icon">✗</div>
+            <h1 class="failure-title">Betalning misslyckades</h1>
+            <p class="failure-message">
+                Tyvärr kunde din betalning inte genomföras. Din beställning har inte registrerats och inga pengar har dragits från ditt konto.
+            </p>
+            
+            <div class="help-section">
+                <h3>Möjliga orsaker</h3>
+                <ul class="help-list">
+                    <li>Otillräckliga medel på ditt kort</li>
+                    <li>Kortet har upphört att gälla</li>
+                    <li>Felaktig kortinformation</li>
+                    <li>Banken blockerade transaktionen</li>
+                    <li>Tekniskt fel under betalningen</li>
+                </ul>
+            </div>
+            
+            <div class="contact-info">
+                <h4>Behöver du hjälp?</h4>
+                <p>
+                    Om du fortsätter att ha problem med betalningen, tveka inte att kontakta oss. 
+                    Vi hjälper dig gärna att slutföra din beställning.
+                </p>
+            </div>
+            
+            <div>
+                <a href="javascript:history.back()" class="btn btn-danger">Försök igen</a>
+                <a href="/" class="btn">Tillbaka till startsidan</a>
+                <a href="/#bocker" class="btn btn-secondary">Se fler böcker</a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('components/footer') %>
+
+    <script src="/script.js"></script>
+</body>
+</html>
+
+

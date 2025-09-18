@@ -143,6 +143,51 @@ class SupabaseService {
         return true;
     }
 
+    // Orders operations
+    async createOrder(orderData) {
+        const { data, error } = await this.supabase
+            .from('orders')
+            .insert([orderData])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async getOrderByPaymentIntentId(paymentIntentId) {
+        const { data, error } = await this.supabase
+            .from('orders')
+            .select('*')
+            .eq('stripe_payment_intent_id', paymentIntentId)
+            .single();
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async updateOrderStatus(paymentIntentId, status) {
+        const { data, error } = await this.supabase
+            .from('orders')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('stripe_payment_intent_id', paymentIntentId)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async getAllOrders() {
+        const { data, error } = await this.supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+    }
+
 
     // Blog posts operations
     async getAllBlogPosts() {
