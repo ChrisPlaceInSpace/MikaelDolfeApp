@@ -5,16 +5,41 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs-extra');
 const bodyParser = require('body-parser');
-// Development: Comment out production security packages
-// const helmet = require('helmet');
-// const rateLimit = require('express-rate-limit');
-// const slowDown = require('express-slow-down');
-// const { body, validationResult } = require('express-validator');
-// const xss = require('xss');
+// Security packages
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+const { body, validationResult } = require('express-validator');
+const xss = require('xss');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Logging setup
+const logLevel = process.env.LOG_LEVEL || 'info';
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+// Simple logging function
+function log(level, message, data = null) {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+        timestamp,
+        level,
+        message,
+        ...(data && { data })
+    };
+    
+    if (isDevelopment) {
+        console.log(`[${timestamp}] ${level.toUpperCase()}: ${message}`, data || '');
+    } else {
+        // In production, you might want to send logs to a service
+        console.log(JSON.stringify(logEntry));
+    }
+}
+
+// Database configuration
+const databaseType = process.env.DATABASE_TYPE || 'sqlite';
 
 // Database setup - now using DatabaseManager
 const DatabaseManager = require('./services/database');
@@ -24,8 +49,6 @@ const db = new DatabaseManager();
 const StripeService = require('./services/stripe');
 const stripeService = new StripeService();
 
-// Development: Comment out production security middleware
-/*
 // Security middleware
 app.use(helmet({
     contentSecurityPolicy: {
@@ -35,7 +58,7 @@ app.use(helmet({
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
-            connectSrc: ["'self'"]
+            connectSrc: ["'self'", "https://*.supabase.co", "https://api.stripe.com"]
         }
     },
     hsts: {
@@ -76,13 +99,16 @@ const speedLimiter = slowDown({
 
 app.use(limiter);
 app.use(speedLimiter);
-*/
 
 // Middleware
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
+
+// Only serve local uploads if using SQLite
+if (databaseType === 'sqlite') {
+    app.use('/uploads', express.static('uploads'));
+}
 
 // Serve static files from root directory
 app.use('/styles.css', express.static(path.join(__dirname, 'styles.css')));
@@ -108,24 +134,43 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// File upload configuration
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        let uploadDir;
-        // Map field names to proper directory names
-        if (file.fieldname === 'cover_image') {
-            uploadDir = path.join(__dirname, 'uploads', 'books');
-        } else {
-            uploadDir = path.join(__dirname, 'uploads', file.fieldname);
-        }
-        fs.ensureDirSync(uploadDir);
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+// Helper function to get image URL
+function getImageUrl(bucket, filename) {
+    if (databaseType === 'supabase') {
+        return `https://${process.env.SUPABASE_URL.split('//')[1]}/storage/v1/object/public/${bucket}/${filename}`;
+    } else {
+        return `/uploads/${bucket}/${filename}`;
     }
-});
+}
+
+// Make helper available to all views
+app.locals.getImageUrl = getImageUrl;
+
+// File upload configuration
+let storage;
+if (databaseType === 'supabase') {
+    // For Supabase, store files in memory and upload to Supabase Storage
+    storage = multer.memoryStorage();
+} else {
+    // For SQLite, store files locally
+    storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            let uploadDir;
+            // Map field names to proper directory names
+            if (file.fieldname === 'cover_image') {
+                uploadDir = path.join(__dirname, 'uploads', 'books');
+            } else {
+                uploadDir = path.join(__dirname, 'uploads', file.fieldname);
+            }
+            fs.ensureDirSync(uploadDir);
+            cb(null, uploadDir);
+        },
+        filename: function (req, file, cb) {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            cb(null, uniqueSuffix + path.extname(file.originalname));
+        }
+    });
+}
 
 const upload = multer({ 
     storage: storage,
@@ -158,8 +203,6 @@ function requireAuth(req, res, next) {
     }
 }
 
-// Development: Comment out input sanitization
-/*
 // Input sanitization middleware
 function sanitizeInput(req, res, next) {
     if (req.body) {
@@ -171,7 +214,6 @@ function sanitizeInput(req, res, next) {
     }
     next();
 }
-*/
 
 // Routes
 
@@ -181,7 +223,7 @@ app.get('/admin/login', (req, res) => {
 });
 
 // Admin login POST
-app.post('/admin/login', async (req, res) => {
+app.post('/admin/login', loginLimiter, sanitizeInput, async (req, res) => {
     try {
         const { username, password } = req.body;
         
@@ -201,8 +243,10 @@ app.post('/admin/login', async (req, res) => {
         if (username === adminUsername && isValidPassword) {
             req.session.authenticated = true;
             req.session.loginTime = Date.now();
+            log('info', 'Admin login successful', { username, ip: req.ip });
             res.redirect('/admin/dashboard');
         } else {
+            log('warn', 'Admin login failed', { username, ip: req.ip });
             res.render('admin/login', { error: 'Felaktigt användarnamn eller lösenord' });
         }
     } catch (error) {
@@ -213,6 +257,7 @@ app.post('/admin/login', async (req, res) => {
 
 // Admin logout
 app.get('/admin/logout', (req, res) => {
+    log('info', 'Admin logout', { ip: req.ip });
     req.session.destroy();
     res.redirect('/admin/login');
 });
@@ -247,7 +292,7 @@ app.get('/admin/blog/new', requireAuth, (req, res) => {
     res.render('admin/blog-form', { post: null });
 });
 
-app.post('/admin/blog', requireAuth, async (req, res) => {
+app.post('/admin/blog', requireAuth, sanitizeInput, async (req, res) => {
     try {
         const { title, content, excerpt, status } = req.body;
         const post = {
@@ -318,10 +363,31 @@ app.get('/admin/books/new', requireAuth, (req, res) => {
     res.render('admin/book-form', { book: null });
 });
 
-app.post('/admin/books', requireAuth, upload.single('cover_image'), async (req, res) => {
+app.post('/admin/books', requireAuth, uploadLimiter, upload.single('cover_image'), sanitizeInput, async (req, res) => {
     try {
         const { title, subtitle, description, status, release_date, price, sort_order } = req.body;
-        const coverImage = req.file ? `/uploads/books/${req.file.filename}` : null;
+        let coverImage = null;
+        
+        if (req.file) {
+            if (databaseType === 'supabase') {
+                try {
+                    // Upload to Supabase Storage
+                    const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(req.file.originalname)}`;
+                    const bucketName = process.env.SUPABASE_STORAGE_BUCKET_BOOKS || 'books';
+                    console.log('Uploading file to Supabase:', { fileName, bucketName, mimetype: req.file.mimetype });
+                    const uploadResult = await db.uploadFile(req.file, bucketName, fileName);
+                    console.log('Upload result:', uploadResult);
+                    coverImage = db.getFileUrl(bucketName, fileName);
+                    console.log('Generated cover image URL:', coverImage);
+                } catch (uploadError) {
+                    console.error('Supabase upload error:', uploadError);
+                    throw new Error(`File upload failed: ${uploadError.message}`);
+                }
+            } else {
+                // Local storage
+                coverImage = `/uploads/books/${req.file.filename}`;
+            }
+        }
         
         const book = {
             title,
@@ -353,10 +419,31 @@ app.get('/admin/books/:id/edit', requireAuth, async (req, res) => {
     }
 });
 
-app.post('/admin/books/:id', requireAuth, upload.single('cover_image'), async (req, res) => {
+app.post('/admin/books/:id', requireAuth, uploadLimiter, upload.single('cover_image'), sanitizeInput, async (req, res) => {
     try {
         const { title, subtitle, description, status, release_date, price, sort_order } = req.body;
-        const coverImage = req.file ? `/uploads/books/${req.file.filename}` : req.body.existing_cover_image;
+        let coverImage = req.body.existing_cover_image;
+        
+        if (req.file) {
+            if (databaseType === 'supabase') {
+                try {
+                    // Upload to Supabase Storage
+                    const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(req.file.originalname)}`;
+                    const bucketName = process.env.SUPABASE_STORAGE_BUCKET_BOOKS || 'books';
+                    console.log('Uploading file to Supabase:', { fileName, bucketName, mimetype: req.file.mimetype });
+                    const uploadResult = await db.uploadFile(req.file, bucketName, fileName);
+                    console.log('Upload result:', uploadResult);
+                    coverImage = db.getFileUrl(bucketName, fileName);
+                    console.log('Generated cover image URL:', coverImage);
+                } catch (uploadError) {
+                    console.error('Supabase upload error:', uploadError);
+                    throw new Error(`File upload failed: ${uploadError.message}`);
+                }
+            } else {
+                // Local storage
+                coverImage = `/uploads/books/${req.file.filename}`;
+            }
+        }
         
         const book = {
             id: req.params.id,
@@ -689,14 +776,51 @@ async function getCount(table) {
 
 
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    log('error', 'Unhandled error occurred', {
+        error: err.message,
+        stack: err.stack,
+        url: req.url,
+        method: req.method,
+        ip: req.ip
+    });
+    
+    if (isDevelopment) {
+        res.status(500).send(`
+            <h1>Server Error</h1>
+            <p><strong>Error:</strong> ${err.message}</p>
+            <pre>${err.stack}</pre>
+        `);
+    } else {
+        res.status(500).send(`
+            <h1>Something went wrong</h1>
+            <p>We're sorry, but something went wrong. Please try again later.</p>
+        `);
+    }
+});
+
+// 404 handler
+app.use((req, res) => {
+    log('warn', '404 Not Found', { url: req.url, method: req.method, ip: req.ip });
+    res.status(404).send(`
+        <h1>Page Not Found</h1>
+        <p>The page you're looking for doesn't exist.</p>
+        <a href="/">Go back to homepage</a>
+    `);
+});
+
 // Create upload directories
 fs.ensureDirSync(path.join(__dirname, 'uploads', 'books'));
 fs.ensureDirSync(path.join(__dirname, 'uploads', 'profile'));
 
-
-
 // Start server
 app.listen(PORT, () => {
+    log('info', 'Server started successfully', {
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development',
+        database: databaseType
+    });
     console.log(`Server running on port ${PORT}`);
     console.log(`Admin panel: http://localhost:${PORT}/admin/login`);
     console.log(`Public site: http://localhost:${PORT}`);

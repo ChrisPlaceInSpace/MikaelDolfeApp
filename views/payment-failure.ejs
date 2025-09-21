@@ -220,7 +220,7 @@
             </div>
             
             <div>
-                <a href="javascript:history.back()" class="btn btn-danger">Försök igen</a>
+                <a href="#" class="btn btn-danger" id="retry-button">Försök igen</a>
                 <a href="/" class="btn">Tillbaka till startsidan</a>
                 <a href="/#bocker" class="btn btn-secondary">Se fler böcker</a>
             </div>
@@ -230,6 +230,17 @@
     <%- include('components/footer') %>
 
     <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const retryButton = document.getElementById('retry-button');
+            if (retryButton) {
+                retryButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    history.back();
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 
