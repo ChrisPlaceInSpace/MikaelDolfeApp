@@ -3,9 +3,10 @@ require('dotenv').config();
 
 class SupabaseService {
     constructor() {
+        // Use service role key for admin operations (has full permissions)
         this.supabase = createClient(
             process.env.SUPABASE_URL,
-            process.env.SUPABASE_SERVICE_ROLE_KEY
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
         );
     }
 
@@ -259,9 +260,10 @@ class SupabaseService {
     async uploadFile(file, bucket, path) {
         const { data, error } = await this.supabase.storage
             .from(bucket)
-            .upload(path, file, {
+            .upload(path, file.buffer, {
                 cacheControl: '3600',
-                upsert: false
+                upsert: false,
+                contentType: file.mimetype
             });
         
         if (error) throw error;

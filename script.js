@@ -294,6 +294,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('books-container');
             console.log('📦 Books container found:', container);
             
+            // Exit early if books container doesn't exist (e.g., on book details page)
+            if (!container) {
+                console.log('📦 No books container found, skipping books load');
+                return;
+            }
+            
             if (books.length === 0) {
                 container.innerHTML = '<div class="no-content">Inga böcker tillgängliga än</div>';
                 return;
@@ -304,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(`Book: ${book.title}, Price: ${book.price}, Has Price: ${hasPrice}`);
                 
                 return `
-                <div class="book-card" onclick="window.location.href='/book/${book.id}'" style="cursor: pointer;">
+                <div class="book-card" data-book-id="${book.id}" style="cursor: pointer;">
                     <div class="book-cover">
                         ${book.cover_image ? 
                             `<img src="${book.cover_image}" alt="${book.title}">` : 
@@ -317,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${hasPrice ? `<span class="price-amount">${book.price} SEK</span>` : ''}
                         </div>
                         <div class="book-actions" style="${hasPrice ? '' : 'visibility: hidden; height: 2.5rem;'}">
-                            ${hasPrice ? `<a href="/purchase/${book.id}" class="btn-purchase" onclick="event.stopPropagation()" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Köp</a>` : ''}
+                            ${hasPrice ? `<a href="/purchase/${book.id}" class="btn-purchase" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Köp</a>` : ''}
                         </div>
                     </div>
                 </div>
@@ -327,6 +333,19 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('📝 Books HTML generated:', booksHTML);
             console.log('🔍 Checking if buttons are in HTML:', booksHTML.includes('btn-purchase'));
             container.innerHTML = booksHTML;
+            
+            // Add event listeners for book cards
+            const bookCards = container.querySelectorAll('.book-card');
+            bookCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Don't navigate if clicking on the purchase button
+                    if (e.target.classList.contains('btn-purchase')) {
+                        return;
+                    }
+                    const bookId = this.getAttribute('data-book-id');
+                    window.location.href = `/book/${bookId}`;
+                });
+            });
             console.log('✅ Books loaded successfully');
             
             // Additional debugging
@@ -337,7 +356,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         } catch (error) {
             console.error('❌ Error loading books:', error);
-            document.getElementById('books-container').innerHTML = '<div class="error">Kunde inte ladda böcker</div>';
+            const container = document.getElementById('books-container');
+            if (container) {
+                container.innerHTML = '<div class="error">Kunde inte ladda böcker</div>';
+            }
         }
     }
 
@@ -352,26 +374,49 @@ document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('blog-container');
             console.log('📦 Blog container found:', container);
             
+            // Exit early if blog container doesn't exist (e.g., on book details page)
+            if (!container) {
+                console.log('📦 No blog container found, skipping blog posts load');
+                return;
+            }
+            
             if (posts.length === 0) {
                 container.innerHTML = '<div class="no-content">Inga blogginlägg tillgängliga än</div>';
                 return;
             }
             
             const postsHTML = posts.map(post => `
-                <article class="blog-post" onclick="window.location.href='/blog/${post.id}'" style="cursor: pointer;">
+                <article class="blog-post" data-blog-id="${post.id}" style="cursor: pointer;">
                     <div class="blog-date">${new Date(post.created_at).toLocaleDateString('sv-SE')}</div>
                     <h3>${post.title}</h3>
                     ${post.excerpt ? `<p>${post.excerpt}</p>` : ''}
-                    <a href="/blog/${post.id}" class="read-more" onclick="event.stopPropagation()">Läs mer</a>
+                    <a href="/blog/${post.id}" class="read-more">Läs mer</a>
                 </article>
             `).join('');
             
             console.log('📝 Blog posts HTML generated:', postsHTML);
             container.innerHTML = postsHTML;
+            
+            // Add event listeners for blog posts
+            const blogPosts = container.querySelectorAll('.blog-post');
+            blogPosts.forEach(post => {
+                post.addEventListener('click', function(e) {
+                    // Don't navigate if clicking on the read-more link
+                    if (e.target.classList.contains('read-more')) {
+                        return;
+                    }
+                    const blogId = this.getAttribute('data-blog-id');
+                    window.location.href = `/blog/${blogId}`;
+                });
+            });
+            
             console.log('✅ Blog posts loaded successfully');
         } catch (error) {
             console.error('❌ Error loading blog posts:', error);
-            document.getElementById('blog-container').innerHTML = '<div class="error">Kunde inte ladda blogginlägg</div>';
+            const container = document.getElementById('blog-container');
+            if (container) {
+                container.innerHTML = '<div class="error">Kunde inte ladda blogginlägg</div>';
+            }
         }
     }
 

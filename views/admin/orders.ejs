@@ -282,7 +282,7 @@
                                 <td><%= new Date(order.created_at).toLocaleDateString('sv-SE') %></td>
                                 <td>
                                     <div class="order-actions">
-                                        <button class="btn btn-small btn-secondary" onclick="viewOrderDetails('<%= order.id %>')">
+                                        <button class="btn btn-small btn-secondary view-details-btn" data-order-id="<%= order.id %>">
                                             Visa detaljer
                                         </button>
                                     </div>
@@ -305,6 +305,16 @@
     </div>
     
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    viewOrderDetails(orderId);
+                });
+            });
+        });
+        
         function viewOrderDetails(orderId) {
             // This would open a modal or navigate to a detailed view
             alert('Order details for order #' + orderId + ' would be shown here.');

@@ -33,8 +33,7 @@
         .book-container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 0 2rem;
-            margin-top: 8rem; /* Add space for fixed header */
+            padding: 0 2rem;            
         }
         
         .book-header {
@@ -335,7 +334,7 @@
             
             .book-container {
                 padding: 0 1rem;
-                margin-top: 10rem; /* Extra space for mobile header */
+                margin-top: 3rem; /* Extra space for mobile header */
             }
             
             .blurbs-title {
@@ -349,6 +348,10 @@
             
             .blurb-card {
                 padding: 1.5rem;
+            }
+            
+            .blurb-card::before {
+                display: none; /* Hide quote icon on mobile */
             }
             
             .book-blurbs-section {
