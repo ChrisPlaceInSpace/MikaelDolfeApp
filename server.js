@@ -78,6 +78,7 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    trustProxy: true, // Trust the proxy for IP detection
 });
 
 const loginLimiter = rateLimit({
@@ -85,12 +86,14 @@ const loginLimiter = rateLimit({
     max: 5, // limit each IP to 5 login attempts per windowMs
     message: 'Too many login attempts, please try again later.',
     skipSuccessfulRequests: true,
+    trustProxy: true, // Trust the proxy for IP detection
 });
 
 const uploadLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 10, // limit each IP to 10 uploads per minute
     message: 'Too many uploads, please try again later.',
+    trustProxy: true, // Trust the proxy for IP detection
 });
 
 // Slow down middleware
