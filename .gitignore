@@ -11,7 +11,7 @@ PRODUCTION_SETUP.md
 
 node_modules
 database
-uploads
+images
 # Logs
 logs
 *.log

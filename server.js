@@ -16,6 +16,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for proper IP handling behind Nginx
+app.set('trust proxy', 1);
+
 // Logging setup
 const logLevel = process.env.LOG_LEVEL || 'info';
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -42,11 +45,11 @@ function log(level, message, data = null) {
 const databaseType = process.env.DATABASE_TYPE || 'sqlite';
 
 // Database setup - now using DatabaseManager
-const DatabaseManager = require('./services/database');
+const DatabaseManager = require('./src/services/database');
 const db = new DatabaseManager();
 
 // Stripe setup
-const StripeService = require('./services/stripe');
+const StripeService = require('./src/services/stripe');
 const stripeService = new StripeService();
 
 // Security middleware
@@ -105,15 +108,18 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 
+// Serve static assets
+app.use('/assets', express.static('assets'));
+
 // Only serve local uploads if using SQLite
 if (databaseType === 'sqlite') {
     app.use('/uploads', express.static('uploads'));
 }
 
-// Serve static files from root directory
-app.use('/styles.css', express.static(path.join(__dirname, 'styles.css')));
-app.use('/script.js', express.static(path.join(__dirname, 'script.js')));
-app.use('/favicon.svg', express.static(path.join(__dirname, 'favicon.svg')));
+// Serve static files from assets directory
+app.use('/styles.css', express.static(path.join(__dirname, 'assets/css/styles.css')));
+app.use('/script.js', express.static(path.join(__dirname, 'assets/scripts/script.js')));
+app.use('/favicon.svg', express.static(path.join(__dirname, 'assets/favicon.svg')));
 
 // Session configuration
 app.use(session({
@@ -132,13 +138,18 @@ app.use(session({
 
 // View engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'src/views'));
 
 // Helper function to get image URL
 function getImageUrl(bucket, filename) {
     if (databaseType === 'supabase') {
         return `https://${process.env.SUPABASE_URL.split('//')[1]}/storage/v1/object/public/${bucket}/${filename}`;
     } else {
+        // Check if file exists in assets/images first, otherwise use uploads
+        const assetsPath = path.join(__dirname, 'assets/images', bucket, filename);
+        if (fs.existsSync(assetsPath)) {
+            return `/assets/images/${bucket}/${filename}`;
+        }
         return `/uploads/${bucket}/${filename}`;
     }
 }
