@@ -330,8 +330,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             }).join('');
             
-            console.log('📝 Books HTML generated:', booksHTML);
-            console.log('🔍 Checking if buttons are in HTML:', booksHTML.includes('btn-purchase'));
+            // console.log('📝 Books HTML generated:', booksHTML);
+            // console.log('🔍 Checking if buttons are in HTML:', booksHTML.includes('btn-purchase'));
             container.innerHTML = booksHTML;
             
             // Add event listeners for book cards
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Additional debugging
             const buttons = document.querySelectorAll('.btn-purchase');
-            console.log(`🔘 Found ${buttons.length} purchase buttons in DOM`);
+            // console.log(`🔘 Found ${buttons.length} purchase buttons in DOM`);
             buttons.forEach((btn, index) => {
                 console.log(`Button ${index + 1}:`, btn.textContent, btn.style.display, btn.offsetHeight);
             });
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </article>
             `).join('');
             
-            console.log('📝 Blog posts HTML generated:', postsHTML);
+            // console.log('📝 Blog posts HTML generated:', postsHTML);
             container.innerHTML = postsHTML;
             
             // Add event listeners for blog posts
