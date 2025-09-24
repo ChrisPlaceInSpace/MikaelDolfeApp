@@ -16,8 +16,11 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Trust proxy for proper IP handling behind Nginx
-app.set('trust proxy', 1);
+// Trust proxy for proper IP handling behind Nginx (must be set before any middleware)
+app.set('trust proxy', true);
+
+// Debug: Log trust proxy setting
+console.log('Trust proxy setting:', app.get('trust proxy'));
 
 // Production optimizations
 if (process.env.NODE_ENV === 'production') {
@@ -88,7 +91,10 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
-    trustProxy: true, // Trust the proxy for IP detection
+    keyGenerator: (req) => {
+        // Use the real IP from the request, which should work with trust proxy
+        return req.ip || req.connection.remoteAddress || 'unknown';
+    }
 });
 
 const loginLimiter = rateLimit({
@@ -96,14 +102,20 @@ const loginLimiter = rateLimit({
     max: 5, // limit each IP to 5 login attempts per windowMs
     message: 'Too many login attempts, please try again later.',
     skipSuccessfulRequests: true,
-    trustProxy: true, // Trust the proxy for IP detection
+    keyGenerator: (req) => {
+        // Use the real IP from the request, which should work with trust proxy
+        return req.ip || req.connection.remoteAddress || 'unknown';
+    }
 });
 
 const uploadLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 10, // limit each IP to 10 uploads per minute
     message: 'Too many uploads, please try again later.',
-    trustProxy: true, // Trust the proxy for IP detection
+    keyGenerator: (req) => {
+        // Use the real IP from the request, which should work with trust proxy
+        return req.ip || req.connection.remoteAddress || 'unknown';
+    }
 });
 
 // Slow down middleware
@@ -111,6 +123,23 @@ const speedLimiter = slowDown({
     windowMs: 15 * 60 * 1000, // 15 minutes
     delayAfter: 50, // allow 50 requests per 15 minutes, then...
     delayMs: 500 // begin adding 500ms of delay per request above 50
+});
+
+// Debug middleware to log IP addresses
+app.use((req, res, next) => {
+    console.log('Request IP:', req.ip, 'X-Forwarded-For:', req.get('X-Forwarded-For'), 'Remote Address:', req.connection.remoteAddress);
+    next();
+});
+
+// Test route to check static file serving
+app.get('/test-static', (req, res) => {
+    res.json({
+        message: 'Static file test',
+        assetsPath: '/assets',
+        cssPath: '/assets/css/styles.css',
+        jsPath: '/assets/scripts/script.js',
+        faviconPath: '/assets/favicon.svg'
+    });
 });
 
 app.use(limiter);
