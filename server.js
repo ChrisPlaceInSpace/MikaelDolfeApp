@@ -19,6 +19,16 @@ const PORT = process.env.PORT || 3000;
 // Trust proxy for proper IP handling behind Nginx
 app.set('trust proxy', 1);
 
+// Production optimizations
+if (process.env.NODE_ENV === 'production') {
+    // Disable x-powered-by header for security
+    app.disable('x-powered-by');
+    
+    // Enable compression for better performance
+    const compression = require('compression');
+    app.use(compression());
+}
+
 // Logging setup
 const logLevel = process.env.LOG_LEVEL || 'info';
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -109,20 +119,26 @@ app.use(speedLimiter);
 // Middleware
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.static('public'));
 
-// Serve static assets
-app.use('/assets', express.static('assets'));
+// Serve static assets from assets folder with caching
+app.use('/assets', express.static('assets', {
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0', // Cache for 1 year in production
+    etag: true,
+    lastModified: true
+}));
+
+// Serve favicon from root
+app.use('/favicon.svg', express.static('assets/favicon.svg', {
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0'
+}));
 
 // Only serve local uploads if using SQLite
 if (databaseType === 'sqlite') {
-    app.use('/uploads', express.static('uploads'));
+    app.use('/uploads', express.static('uploads', {
+        maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0'
+    }));
 }
 
-// Serve static files from assets directory
-app.use('/styles.css', express.static(path.join(__dirname, 'assets/css/styles.css')));
-app.use('/script.js', express.static(path.join(__dirname, 'assets/scripts/script.js')));
-app.use('/favicon.svg', express.static(path.join(__dirname, 'assets/favicon.svg')));
 
 // Session configuration
 app.use(session({
