@@ -150,20 +150,18 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static assets from assets folder with caching
-app.use('/assets', express.static('assets', {
+app.use('/assets', express.static(path.join(__dirname, 'assets'), {
     maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0', // Cache for 1 year in production
     etag: true,
     lastModified: true
 }));
 
 // Serve favicon from root
-app.use('/favicon.svg', express.static('assets/favicon.svg', {
-    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0'
-}));
+app.use('/favicon.svg', express.static(path.join(__dirname, 'assets')));
 
 // Only serve local uploads if using SQLite
 if (databaseType === 'sqlite') {
-    app.use('/uploads', express.static('uploads', {
+    app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
         maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0'
     }));
 }
