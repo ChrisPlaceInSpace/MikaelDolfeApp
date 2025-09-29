@@ -367,10 +367,7 @@
             }
         }
         
-        @media (max-width: 480px) {
-            .book-container {
-                padding: 0 0.5rem;
-            }
+        @media (max-width: 480px) {            
             
             .book-title {
                 font-size: 1.8rem;
@@ -458,8 +455,7 @@
                         <!-- Debug: book.price = <%= book.price %> -->
                         <% if (book.price && book.price > 0) { %>
                             <div class="book-price-section">
-                                <div class="price-display">
-                                    <span class="price-label">Pris:</span>
+                                <div class="price-display">                                    
                                     <span class="price-amount"><%= book.price %> SEK</span>
                                 </div>
                                 <a href="/purchase/<%= book.id %>" class="btn btn-purchase">Köp nu</a>

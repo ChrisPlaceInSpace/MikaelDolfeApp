@@ -841,7 +841,7 @@ section {
     }
     
     .author-profile-image {
-        /* height: 250px; */
+        height: 320px;
         max-width: 300px;
         margin: 0 auto;
         display: block;
@@ -859,10 +859,7 @@ section {
     section {
         padding: 2rem 0;
     }
-    
-    .container {
-        padding: 0 15px;
-    }
+        
 }
 
 @media (max-width: 480px) {

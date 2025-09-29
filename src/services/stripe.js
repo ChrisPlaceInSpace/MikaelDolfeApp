@@ -29,6 +29,7 @@ class StripeService {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: amount,
                 currency: 'sek',
+                payment_method_types: ['card'], // Only allow credit cards
                 metadata: {
                     book_id: book.id.toString(),
                     book_title: book.title,

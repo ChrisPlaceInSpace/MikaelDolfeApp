@@ -73,7 +73,8 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
+            frameSrc: ["'self'", "https://js.stripe.com"],
             connectSrc: ["'self'", "https://*.supabase.co", "https://api.stripe.com"]
         }
     },
@@ -700,24 +701,46 @@ app.get('/purchase/:id', async (req, res) => {
 // Create payment intent
 app.post('/create-payment-intent', async (req, res) => {
     try {
+        console.log('🔄 Creating payment intent...');
         const { bookId, customerInfo } = req.body;
+        console.log('📝 Request data:', { bookId, customerInfo });
         
         // Validate required fields
         if (!bookId || !customerInfo || !customerInfo.name || !customerInfo.email || !customerInfo.deliveryAddress) {
+            console.log('❌ Missing required fields');
             return res.status(400).json({ error: 'Missing required fields' });
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(customerInfo.email)) {
+            console.log('❌ Invalid email format:', customerInfo.email);
+            return res.status(400).json({ error: 'Invalid email address format' });
         }
         
         const book = await db.getBook(bookId);
         if (!book) {
+            console.log('❌ Book not found');
             return res.status(404).json({ error: 'Book not found' });
         }
         
         if (!book.price || book.price <= 0) {
+            console.log('❌ Book not available for purchase');
             return res.status(400).json({ error: 'Book not available for purchase' });
         }
         
+        console.log('📚 Book found:', { id: book.id, title: book.title, price: book.price });
+        
+        // Check if Stripe is configured
+        if (!stripeService.stripe) {
+            console.log('❌ Stripe not configured');
+            return res.status(500).json({ error: 'Stripe is not configured. Please check your environment variables.' });
+        }
+        
         // Create payment intent
+        console.log('💳 Creating payment intent with Stripe...');
         const paymentIntent = await stripeService.createPaymentIntent(book, customerInfo);
+        console.log('✅ Payment intent created:', paymentIntent.paymentIntentId);
         
         // Create order record
         const orderData = {
@@ -734,15 +757,17 @@ app.post('/create-payment-intent', async (req, res) => {
             updated_at: new Date().toISOString()
         };
         
+        console.log('💾 Creating order record...');
         await db.createOrder(orderData);
+        console.log('✅ Order record created');
         
         res.json({
             clientSecret: paymentIntent.clientSecret,
             paymentIntentId: paymentIntent.paymentIntentId
         });
     } catch (error) {
-        console.error('Error creating payment intent:', error);
-        res.status(500).json({ error: 'Failed to create payment intent' });
+        console.error('❌ Error creating payment intent:', error);
+        res.status(500).json({ error: `Failed to create payment intent: ${error.message}` });
     }
 });
 
@@ -752,26 +777,72 @@ app.get('/payment/success', async (req, res) => {
         const { payment_intent } = req.query;
         
         if (!payment_intent) {
+            console.log('❌ No payment intent ID provided');
             return res.status(400).send('Payment intent ID required');
         }
         
+        console.log('🔍 Verifying payment intent:', payment_intent);
+        
+        // Get order from database
         const order = await db.getOrderByPaymentIntentId(payment_intent);
         if (!order) {
+            console.log('❌ Order not found for payment intent:', payment_intent);
             return res.status(404).send('Order not found');
+        }
+        
+        console.log('📦 Order found:', { id: order.id, status: order.status });
+        
+        // Verify payment status with Stripe
+        if (stripeService.stripe) {
+            try {
+                const stripePaymentIntent = await stripeService.retrievePaymentIntent(payment_intent);
+                console.log('💳 Stripe payment status:', stripePaymentIntent.status);
+                
+                // Only show success if payment is actually successful
+                if (stripePaymentIntent.status !== 'succeeded') {
+                    console.log('❌ Payment not successful, status:', stripePaymentIntent.status);
+                    return res.redirect('/payment/failure?reason=payment_not_completed');
+                }
+                
+                // Update order status if it's still pending
+                if (order.status === 'pending') {
+                    await db.updateOrderStatus(payment_intent, 'completed');
+                    console.log('✅ Order status updated to completed');
+                }
+            } catch (stripeError) {
+                console.error('❌ Error verifying payment with Stripe:', stripeError);
+                return res.redirect('/payment/failure?reason=verification_failed');
+            }
+        } else {
+            console.log('⚠️ Stripe not configured, skipping verification');
         }
         
         const book = await db.getBook(order.book_id);
         
         res.render('payment-success', { order, book });
     } catch (error) {
-        console.error('Error loading payment success page:', error);
+        console.error('❌ Error loading payment success page:', error);
         res.status(500).send('Server error');
     }
 });
 
 // Payment failure page
 app.get('/payment/failure', (req, res) => {
-    res.render('payment-failure');
+    const { reason } = req.query;
+    let errorMessage = 'Betalningen misslyckades.';
+    
+    switch (reason) {
+        case 'payment_not_completed':
+            errorMessage = 'Betalningen avbröts eller slutfördes inte.';
+            break;
+        case 'verification_failed':
+            errorMessage = 'Kunde inte verifiera betalningen. Kontakta support.';
+            break;
+        default:
+            errorMessage = 'Betalningen misslyckades.';
+    }
+    
+    res.render('payment-failure', { errorMessage });
 });
 
 // Stripe webhook handler

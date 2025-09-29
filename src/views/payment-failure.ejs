@@ -197,7 +197,7 @@
             <div class="failure-icon">✗</div>
             <h1 class="failure-title">Betalning misslyckades</h1>
             <p class="failure-message">
-                Tyvärr kunde din betalning inte genomföras. Din beställning har inte registrerats och inga pengar har dragits från ditt konto.
+                <%= errorMessage || 'Tyvärr kunde din betalning inte genomföras. Din beställning har inte registrerats och inga pengar har dragits från ditt konto.' %>
             </p>
             
             <div class="help-section">

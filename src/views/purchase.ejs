@@ -209,11 +209,45 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            opacity: 0.5;
+        }
+        
+        #continue-button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.5;
         }
         
         .btn-secondary {
             background: linear-gradient(135deg, #95a5a6, #7f8c8d);
             margin-top: 1rem;
+        }
+        
+        /* Locked form state */
+        .form-section.locked {
+            opacity: 0.6;
+            pointer-events: none;
+            position: relative;
+        }
+        
+        .form-section.locked::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            pointer-events: none;
+        }
+        
+        .form-input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
         }
         
         .error-message {
@@ -357,7 +391,7 @@
             </div>
             
             <form id="purchase-form" class="purchase-form">
-                <div class="form-section">
+                <div class="form-section" id="contact-section">
                     <h3>Kontaktinformation</h3>
                     <div class="form-row">
                         <div class="form-group">
@@ -370,12 +404,12 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="phone" class="form-label">Telefonnummer</label>
-                        <input type="tel" id="phone" name="phone" class="form-input">
+                        <label for="phone" class="form-label">Telefonnummer <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" class="form-input" required>
                     </div>
                 </div>
                 
-                <div class="form-section">
+                <div class="form-section" id="address-section">
                     <h3>Leveransadress</h3>
                     <div class="form-group">
                         <label for="address" class="form-label">Adress <span class="required">*</span></label>
@@ -395,6 +429,17 @@
                             <input type="text" id="city" name="city" class="form-input" required>
                         </div>
                     </div>
+                    
+                    <button type="button" id="continue-button" class="btn btn-secondary" style="margin-top: 1rem;">
+                        Fortsätt till betalning
+                    </button>
+                </div>
+                
+                <!-- Edit button (initially hidden) -->
+                <div id="edit-section" style="display: none; text-align: center; margin: 2rem 0;">
+                    <button type="button" id="edit-button" class="btn btn-secondary" style="display: inline-block; padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        Ändra
+                    </button>
                 </div>
                 
                 <div class="form-section">
@@ -432,7 +477,7 @@
                 
                 <button type="submit" id="submit-button" class="btn" <%= !stripeConfigured ? 'disabled' : '' %>>
                     <% if (stripeConfigured) { %>
-                        Betala <%= book.price %> SEK
+                        Betala köp
                     <% } else { %>
                         Stripe inte konfigurerat
                     <% } %>
@@ -449,29 +494,38 @@
         const stripe = Stripe('<%= stripePublishableKey %>');
         let elements;
         let paymentElement;
+        let paymentInitialized = false;
+        let storedCustomerInfo = null;
         
         // Form elements
         const form = document.getElementById('purchase-form');
         const submitButton = document.getElementById('submit-button');
+        const continueButton = document.getElementById('continue-button');
+        const editButton = document.getElementById('edit-button');
         const loading = document.getElementById('loading');
         const paymentMessage = document.getElementById('payment-message');
+        const paymentSection = document.querySelector('.payment-section');
+        const contactSection = document.getElementById('contact-section');
+        const addressSection = document.getElementById('address-section');
+        const editSection = document.getElementById('edit-section');
         
         // Initialize payment form
         async function initializePayment() {
+            if (paymentInitialized) {
+                return;
+            }
+            
             try {
-                // Get form data
-                const formData = new FormData(form);
-                const customerInfo = {
-                    name: formData.get('name'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    deliveryAddress: {
-                        address: formData.get('address'),
-                        address2: formData.get('address2'),
-                        postalCode: formData.get('postalCode'),
-                        city: formData.get('city')
-                    }
-                };
+                console.log('🔄 Initializing payment...');
+                
+                // Use stored customer info instead of form data
+                if (!storedCustomerInfo) {
+                    console.error('❌ No stored customer info available');
+                    showMessage('Kunde inte hämta kundinformation. Vänligen försök igen.', 'error');
+                    return;
+                }
+                
+                console.log('📝 Using stored customer info:', storedCustomerInfo);
                 
                 // Create payment intent
                 const response = await fetch('/create-payment-intent', {
@@ -481,24 +535,28 @@
                     },
                     body: JSON.stringify({
                         bookId: '<%= book.id %>',
-                        customerInfo: customerInfo
+                        customerInfo: storedCustomerInfo
                     })
                 });
                 
-                const { clientSecret, error } = await response.json();
+                const result = await response.json();
+                console.log('💳 Payment intent response:', result);
                 
-                if (error) {
-                    showMessage(error, 'error');
+                if (result.error) {
+                    showMessage(result.error, 'error');
                     return;
                 }
                 
                 // Initialize Stripe Elements
-                elements = stripe.elements({ clientSecret });
+                elements = stripe.elements({ clientSecret: result.clientSecret });
                 paymentElement = elements.create('payment');
                 paymentElement.mount('#payment-element');
                 
+                paymentInitialized = true;
+                console.log('✅ Payment initialized successfully');
+                
             } catch (error) {
-                console.error('Error initializing payment:', error);
+                console.error('❌ Error initializing payment:', error);
                 showMessage('Ett fel uppstod vid initialisering av betalningen.', 'error');
             }
         }
@@ -506,9 +564,10 @@
         // Handle form submission
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
+            console.log('🚀 Form submitted');
             
             if (!paymentElement) {
-                showMessage('Betalningsformuläret är inte redo än.', 'error');
+                showMessage('Betalningsformuläret är inte redo än. Klicka på "Fortsätt till betalning" först.', 'error');
                 return;
             }
             
@@ -523,14 +582,76 @@
                 });
                 
                 if (error) {
+                    console.error('❌ Payment error:', error);
                     showMessage(error.message, 'error');
                 }
             } catch (error) {
-                console.error('Error confirming payment:', error);
+                console.error('❌ Error confirming payment:', error);
                 showMessage('Ett fel uppstod vid betalningen.', 'error');
             } finally {
                 setLoading(false);
             }
+        });
+        
+        // Handle continue button click
+        continueButton.addEventListener('click', async (event) => {
+            event.preventDefault();
+            console.log('🔄 Continue button clicked');
+            
+            // Validate required fields
+            const requiredFields = ['name', 'email', 'phone', 'address', 'postalCode', 'city'];
+            const missingFields = [];
+            
+            requiredFields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (!field.value.trim()) {
+                    missingFields.push(fieldName);
+                }
+            });
+            
+            if (missingFields.length > 0) {
+                showMessage(`Vänligen fyll i alla obligatoriska fält: ${missingFields.join(', ')}`, 'error');
+                return;
+            }
+            
+            // Validate email format
+            const emailField = document.getElementById('email');
+            if (!isValidEmail(emailField.value.trim())) {
+                showMessage('Vänligen ange en giltig e-postadress', 'error');
+                return;
+            }
+            
+            // Store customer info before locking form
+            storedCustomerInfo = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                deliveryAddress: {
+                    address: document.getElementById('address').value.trim(),
+                    address2: document.getElementById('address2').value.trim(),
+                    postalCode: document.getElementById('postalCode').value.trim(),
+                    city: document.getElementById('city').value.trim()
+                }
+            };
+            
+            console.log('💾 Stored customer info:', storedCustomerInfo);
+            
+            // Lock form sections
+            lockFormSections();
+            
+            // Show payment section
+            paymentSection.style.display = 'block';
+            continueButton.style.display = 'none';
+            
+            // Show edit button
+            editSection.style.display = 'block';
+            
+            // Show and enable submit button
+            submitButton.style.display = 'block';
+            submitButton.disabled = false;
+            
+            // Initialize payment
+            await initializePayment();
         });
         
         // Show/hide loading state
@@ -546,14 +667,209 @@
             paymentMessage.style.color = type === 'error' ? '#e74c3c' : '#27ae60';
         }
         
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize payment when form is valid
-            form.addEventListener('input', () => {
-                if (form.checkValidity() && !paymentElement) {
-                    initializePayment();
+        // Email validation function
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // Check if form is valid for continue button
+        function checkFormValidity() {
+            const requiredFields = ['name', 'email', 'phone', 'address', 'postalCode', 'city'];
+            const fieldValues = {};
+            const allFieldsFilled = requiredFields.every(fieldName => {
+                const field = document.getElementById(fieldName);
+                fieldValues[fieldName] = field ? field.value.trim() : '';
+                return field && field.value.trim() !== '';
+            });
+            
+            // Check email validity
+            const emailField = document.getElementById('email');
+            const emailValid = emailField && isValidEmail(emailField.value.trim());
+            
+            console.log('🔍 Form validation check:', { fieldValues, allFieldsFilled, emailValid });
+            
+            const formValid = allFieldsFilled && emailValid;
+            continueButton.disabled = !formValid;
+            
+            if (formValid) {
+                continueButton.style.opacity = '1';
+                continueButton.style.cursor = 'pointer';
+                continueButton.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+                console.log('✅ Continue button enabled');
+            } else {
+                continueButton.style.opacity = '0.5';
+                continueButton.style.cursor = 'not-allowed';
+                continueButton.style.background = 'linear-gradient(135deg, #95a5a6, #7f8c8d)';
+                console.log('❌ Continue button disabled');
+            }
+            
+            // Show email validation error
+            if (emailField && emailField.value.trim() !== '' && !emailValid) {
+                showFieldError('email', 'Vänligen ange en giltig e-postadress');
+            } else {
+                clearFieldError('email');
+            }
+        }
+        
+        // Show field-specific error
+        function showFieldError(fieldName, message) {
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.style.borderColor = '#e74c3c';
+                let errorDiv = field.parentNode.querySelector('.field-error');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'field-error';
+                    errorDiv.style.color = '#e74c3c';
+                    errorDiv.style.fontSize = '0.9rem';
+                    errorDiv.style.marginTop = '0.25rem';
+                    field.parentNode.appendChild(errorDiv);
+                }
+                errorDiv.textContent = message;
+            }
+        }
+        
+        // Clear field-specific error
+        function clearFieldError(fieldName) {
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.style.borderColor = '#e9ecef';
+                const errorDiv = field.parentNode.querySelector('.field-error');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+        }
+        
+        // Lock form sections
+        function lockFormSections() {
+            console.log('🔒 Locking form sections');
+            
+            // Add locked class to sections
+            contactSection.classList.add('locked');
+            addressSection.classList.add('locked');
+            
+            // Disable all form inputs in locked sections
+            const inputs = contactSection.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            const addressInputs = addressSection.querySelectorAll('input');
+            addressInputs.forEach(input => {
+                input.disabled = true;
+            });
+        }
+        
+        // Unlock form sections
+        function unlockFormSections() {
+            console.log('🔓 Unlocking form sections');
+            
+            // Remove locked class from sections
+            contactSection.classList.remove('locked');
+            addressSection.classList.remove('locked');
+            
+            // Enable all form inputs in sections
+            const inputs = contactSection.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.disabled = false;
+            });
+            
+            const addressInputs = addressSection.querySelectorAll('input');
+            addressInputs.forEach(input => {
+                input.disabled = false;
+            });
+        }
+        
+        // Reset form to initial state
+        function resetFormState() {
+            console.log('🔄 Resetting form state');
+            
+            // Clear stored customer info
+            storedCustomerInfo = null;
+            
+            // Unlock form sections
+            unlockFormSections();
+            
+            // Hide payment section
+            paymentSection.style.display = 'none';
+            
+            // Hide edit section
+            editSection.style.display = 'none';
+            
+            // Show continue button
+            continueButton.style.display = 'block';
+            continueButton.disabled = true;
+            continueButton.style.opacity = '0.5';
+            continueButton.style.cursor = 'not-allowed';
+            continueButton.style.background = 'linear-gradient(135deg, #95a5a6, #7f8c8d)';
+            
+            // Hide submit button
+            submitButton.style.display = 'none';
+            
+            // Reset payment state
+            paymentInitialized = false;
+            if (paymentElement) {
+                paymentElement.unmount();
+                paymentElement = null;
+            }
+            if (elements) {
+                elements = null;
+            }
+            
+            // Clear any error messages
+            paymentMessage.style.display = 'none';
+            
+            // Re-run form validation
+            checkFormValidity();
+        }
+        
+        // Add event listeners to form fields for real-time validation
+        function setupFormValidation() {
+            const formFields = ['name', 'email', 'phone', 'address', 'postalCode', 'city'];
+            
+            formFields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (field) {
+                    field.addEventListener('input', checkFormValidity);
+                    field.addEventListener('blur', checkFormValidity);
                 }
             });
+        }
+        
+        // Handle edit button click
+        editButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            console.log('✏️ Edit button clicked');
+            resetFormState();
+        });
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 Page loaded');
+            
+            // Hide payment section initially
+            if (paymentSection) {
+                paymentSection.style.display = 'none';
+            }
+            
+            // Hide submit button initially
+            submitButton.style.display = 'none';
+            
+            // Hide edit section initially
+            editSection.style.display = 'none';
+            
+            // Disable continue button initially
+            continueButton.disabled = true;
+            continueButton.style.opacity = '0.5';
+            continueButton.style.cursor = 'not-allowed';
+            
+            // Setup form validation
+            setupFormValidation();
+            
+            // Initial form check
+            checkFormValidity();
         });
     </script>
 </body>
