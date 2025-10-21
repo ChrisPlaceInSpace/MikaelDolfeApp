@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contactForm');
     
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form data
@@ -163,11 +163,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Simulate form submission (replace with actual form handling)
-            showNotification('Tack för ditt meddelande! Vi återkommer snart.', 'success');
+            // Show loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Skickar...';
+            submitButton.disabled = true;
             
-            // Reset form
-            this.reset();
+            try {
+                // Send form data to server
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        subject,
+                        message
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification(result.message, 'success');
+                    this.reset();
+                } else {
+                    showNotification(result.error || 'Ett fel uppstod. Försök igen.', 'error');
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                showNotification('Ett fel uppstod vid skickande av meddelandet. Försök igen.', 'error');
+            } finally {
+                // Reset button state
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
         });
     }
 

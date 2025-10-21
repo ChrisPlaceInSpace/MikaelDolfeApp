@@ -171,6 +171,121 @@
             color: #2c3e50;
         }
         
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .order-detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .order-detail-section h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            color: #555;
+            word-break: break-all;
+        }
+        
+        .address-details {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .stripe-id {
+            font-family: monospace;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 0.5rem;
+            border-radius: 3px;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 1rem;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
         .breadcrumb {
             margin-bottom: 2rem;
             font-size: 0.9rem;
@@ -218,6 +333,7 @@
         
         <div class="admin-header">
             <h1 class="admin-title">Hantera Beställningar</h1>
+            <a href="/admin/dashboard" class="btn btn-secondary">Tillbaka till dashboard</a>
         </div>
         
         <div class="orders-stats">
@@ -269,8 +385,8 @@
                                 </td>
                                 <td>
                                     <div class="order-details">
-                                        <strong>Bok ID: <%= order.book_id %></strong><br>
-                                        <small>Stripe ID: <%= order.stripe_payment_intent_id %></small>
+                                        <strong><%= order.book_title %></strong><br>
+                                        <small>Stripe: <%= order.stripe_payment_intent_id %></small>
                                     </div>
                                 </td>
                                 <td><%= order.amount %> <%= order.currency %></td>
@@ -298,26 +414,179 @@
                 </div>
             <% } %>
         </div>
+        </div>
         
-        <div style="margin-top: 2rem;">
-            <a href="/admin/dashboard" class="btn btn-secondary">Tillbaka till dashboard</a>
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Beställningsdetaljer</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="orderDetails">
+                <!-- Order details will be populated here -->
+            </div>
         </div>
     </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
+            const modal = document.getElementById('orderModal');
+            const closeBtn = document.querySelector('.close');
+            
             viewDetailsButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const orderId = this.getAttribute('data-order-id');
                     viewOrderDetails(orderId);
                 });
             });
+            
+            // Close modal when clicking X
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
         });
         
         function viewOrderDetails(orderId) {
-            // This would open a modal or navigate to a detailed view
-            alert('Order details for order #' + orderId + ' would be shown here.');
+            // Find the order data from the table
+            const orderRow = document.querySelector(`[data-order-id="${orderId}"]`).closest('tr');
+            const orderData = extractOrderData(orderRow);
+            
+            // Populate modal with order details
+            const orderDetails = document.getElementById('orderDetails');
+            orderDetails.innerHTML = generateOrderDetailsHTML(orderData);
+            
+            // Show modal
+            document.getElementById('orderModal').style.display = 'block';
+        }
+        
+        function extractOrderData(orderRow) {
+            const cells = orderRow.querySelectorAll('td');
+            const statusBadge = cells[4].querySelector('.status-badge');
+            
+            // Get the order ID to find the full order data
+            const orderId = cells[0].textContent.replace('#', '');
+            
+            // Find the corresponding order data from the server-rendered data
+            const orderData = findOrderById(orderId);
+            
+            return {
+                id: orderId,
+                customerName: cells[1].querySelector('strong').textContent,
+                customerEmail: cells[1].querySelector('small').textContent,
+                bookTitle: cells[2].querySelector('strong').textContent,
+                bookId: orderData ? orderData.book_id : 'N/A',
+                stripeId: cells[2].querySelector('small').textContent.replace('Stripe: ', ''),
+                amount: cells[3].textContent,
+                status: statusBadge.textContent.trim(),
+                date: cells[5].textContent,
+                deliveryAddress: orderData ? orderData.delivery_address : null,
+                customerPhone: orderData ? orderData.customer_phone : null
+            };
+        }
+        
+        function findOrderById(orderId) {
+            // This will be populated with the server data
+            const orders = <%- JSON.stringify(orders) %>;
+            return orders.find(order => order.id == orderId);
+        }
+        
+        function generateOrderDetailsHTML(orderData) {
+            return `
+                <div class="order-detail-section">
+                    <h4>Beställningsinformation</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Beställnings-ID</div>
+                            <div class="detail-value">#${orderData.id}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value">
+                                <span class="status-badge status-${orderData.status}">${orderData.status}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Datum</div>
+                            <div class="detail-value">${orderData.date}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Belopp</div>
+                            <div class="detail-value">${orderData.amount}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-detail-section">
+                    <h4>Kundinformation</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Namn</div>
+                            <div class="detail-value">${orderData.customerName}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">E-post</div>
+                            <div class="detail-value">${orderData.customerEmail}</div>
+                        </div>
+                        ${orderData.customerPhone ? `
+                        <div class="detail-item">
+                            <div class="detail-label">Telefon</div>
+                            <div class="detail-value">${orderData.customerPhone}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                ${orderData.deliveryAddress ? `
+                <div class="order-detail-section">
+                    <h4>Leveransadress</h4>
+                    <div class="address-details">
+                        <div class="detail-label">Adress</div>
+                        <div class="detail-value">${orderData.deliveryAddress.address}</div>
+                        ${orderData.deliveryAddress.address2 ? `
+                        <div class="detail-label">Adress 2</div>
+                        <div class="detail-value">${orderData.deliveryAddress.address2}</div>
+                        ` : ''}
+                        <div class="detail-label">Postnummer</div>
+                        <div class="detail-value">${orderData.deliveryAddress.postalCode}</div>
+                        <div class="detail-label">Stad</div>
+                        <div class="detail-value">${orderData.deliveryAddress.city}</div>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="order-detail-section">
+                    <h4>Produktinformation</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Boktitel</div>
+                            <div class="detail-value">${orderData.bookTitle}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Bok ID</div>
+                            <div class="detail-value">${orderData.bookId}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-detail-section">
+                    <h4>Betalningsinformation</h4>
+                    <div class="detail-item">
+                        <div class="detail-label">Stripe Payment Intent ID</div>
+                        <div class="detail-value">
+                            <div class="stripe-id">${orderData.stripeId}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>
