@@ -250,6 +250,106 @@
             cursor: not-allowed;
         }
         
+        /* Order Summary Styles */
+        .order-summary {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .order-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .summary-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.75rem 0;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: #2c3e50;
+            flex: 1;
+        }
+        
+        .summary-value {
+            color: #555;
+            text-align: right;
+            flex: 1;
+        }
+        
+        .summary-value strong {
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .book-author {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+        
+        .summary-divider {
+            height: 1px;
+            background: #dee2e6;
+            margin: 0.5rem 0;
+        }
+        
+        .summary-total {
+            background: #e8f4fd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            border: 2px solid #3498db;
+        }
+        
+        .summary-total .summary-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .summary-total .summary-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #27ae60;
+        }
+        
+        @media (max-width: 768px) {
+            .purchase-container {
+                margin-top: 12rem;
+                padding: 1rem;
+            }
+            
+            .order-summary {
+                padding: 1.5rem;
+            }
+            
+            .summary-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .summary-value {
+                text-align: left;
+            }
+        }
+        
         .error-message {
             color: #e74c3c;
             font-size: 0.9rem;
@@ -449,6 +549,38 @@
                     </div>
                 </div>
                 
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="purchase-notice" style="background: #fff3cd; border: 2px solid #ffeaa7; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                        <strong style="color: #856404;">⚠️ Köp är tillfälligt inaktiverat</strong>
+                        <p style="color: #856404; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+                            Betalningar är för närvarande inte möjliga. Kontakta oss för mer information.
+                        </p>
+                    </div>
+                    <h3>Ordersammanfattning</h3>
+                    <div class="summary-content">
+                        <div class="summary-item">
+                            <div class="summary-label">Produkt</div>
+                            <div class="summary-value">
+                                <strong><%= book.title %></strong>                                
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Pris</div>
+                            <div class="summary-value"><%= book.price %> SEK</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Leverans</div>
+                            <div class="summary-value">Gratis leverans</div>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-item summary-total">
+                            <div class="summary-label">Totalt</div>
+                            <div class="summary-value"><%= book.price %> SEK</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <% if (stripeConfigured) { %>
                     <div class="payment-section">
                         <h3>Betalning</h3>
@@ -475,12 +607,8 @@
                     <p>Bearbetar betalning...</p>
                 </div>
                 
-                <button type="submit" id="submit-button" class="btn" <%= !stripeConfigured ? 'disabled' : '' %>>
-                    <% if (stripeConfigured) { %>
-                        Betala köp
-                    <% } else { %>
-                        Stripe inte konfigurerat
-                    <% } %>
+                <button type="submit" id="submit-button" class="btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    Köp tillfälligt inaktiverat
                 </button>
             </form>
         </div>
@@ -565,6 +693,10 @@
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
             console.log('🚀 Form submitted');
+            
+            // BLOCK ALL PURCHASES - SITE IS LIVE BUT STRIPE IS IN TEST MODE
+            showMessage('Köp är tillfälligt inaktiverat. Kontakta oss för mer information.', 'error');
+            return;
             
             if (!paymentElement) {
                 showMessage('Betalningsformuläret är inte redo än. Klicka på "Fortsätt till betalning" först.', 'error');

@@ -26,10 +26,49 @@ class StripeService {
         try {
             const amount = Math.round(book.price * 100); // Convert to cents
 
+            // Create or retrieve customer
+            let customer;
+            try {
+                // Try to find existing customer by email
+                const existingCustomers = await this.stripe.customers.list({
+                    email: customerInfo.email,
+                    limit: 1
+                });
+                
+                if (existingCustomers.data.length > 0) {
+                    customer = existingCustomers.data[0];
+                    // Update customer name if it has changed
+                    if (customer.name !== customerInfo.name) {
+                        customer = await this.stripe.customers.update(customer.id, {
+                            name: customerInfo.name,
+                            phone: customerInfo.phone
+                        });
+                    }
+                } else {
+                    // Create new customer
+                    customer = await this.stripe.customers.create({
+                        name: customerInfo.name,
+                        email: customerInfo.email,
+                        phone: customerInfo.phone,
+                        address: {
+                            line1: customerInfo.deliveryAddress.address,
+                            line2: customerInfo.deliveryAddress.address2 || '',
+                            city: customerInfo.deliveryAddress.city,
+                            postal_code: customerInfo.deliveryAddress.postalCode,
+                            country: 'SE'
+                        }
+                    });
+                }
+            } catch (customerError) {
+                console.warn('Could not create/update customer:', customerError);
+                // Continue without customer if there's an error
+            }
+
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: amount,
                 currency: 'sek',
                 payment_method_types: ['card'], // Only allow credit cards
+                customer: customer ? customer.id : undefined,
                 metadata: {
                     book_id: book.id.toString(),
                     book_title: book.title,

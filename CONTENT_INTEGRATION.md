@@ -62,45 +62,6 @@ The main website automatically:
 3. **Creates links** to individual pages for each item
 4. **Handles errors** gracefully with user-friendly messages
 
-### Database Schema
-
-```sql
--- Books table
-CREATE TABLE books (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    subtitle TEXT,
-    description TEXT,
-    cover_image TEXT,
-    status TEXT DEFAULT 'draft',
-    release_date TEXT,
-    created_at TEXT,
-    updated_at TEXT
-);
-
--- Artwork table
-CREATE TABLE artwork (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    description TEXT,
-    image TEXT,
-    category TEXT,
-    medium TEXT,
-    created_at TEXT,
-    updated_at TEXT
-);
-
--- Blog posts table
-CREATE TABLE blog_posts (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT,
-    excerpt TEXT,
-    status TEXT DEFAULT 'draft',
-    created_at TEXT,
-    updated_at TEXT
-);
-```
 
 ## Content Management Features
 

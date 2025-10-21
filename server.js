@@ -65,6 +65,10 @@ const db = new DatabaseManager();
 const StripeService = require('./src/services/stripe');
 const stripeService = new StripeService();
 
+// Resend email service setup
+const ResendService = require('./src/services/resend');
+const resendService = new ResendService();
+
 // Security middleware
 app.use(helmet({
     contentSecurityPolicy: {
@@ -613,7 +617,25 @@ app.post('/admin/blurbs/:id/delete', requireAuth, async (req, res) => {
 app.get('/admin/orders', requireAuth, async (req, res) => {
     try {
         const orders = await db.getAllOrders();
-        res.render('admin/orders', { orders });
+        
+        // Fetch book information for each order
+        const ordersWithBooks = await Promise.all(orders.map(async (order) => {
+            try {
+                const book = await db.getBook(order.book_id);
+                return {
+                    ...order,
+                    book_title: book ? book.title : 'Bok borttagen'
+                };
+            } catch (error) {
+                console.error(`Error fetching book ${order.book_id}:`, error);
+                return {
+                    ...order,
+                    book_title: 'Bok borttagen'
+                };
+            }
+        }));
+        
+        res.render('admin/orders', { orders: ordersWithBooks });
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).send('Server error');
@@ -643,6 +665,74 @@ app.get('/api/books', async (req, res) => {
         res.json(books);
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Contact form endpoint
+app.post('/api/contact', sanitizeInput, async (req, res) => {
+    try {
+        const { name, email, subject, message } = req.body;
+        
+        // Validate required fields
+        if (!name || !email || !message) {
+            return res.status(400).json({ 
+                error: 'Namn, e-post och meddelande är obligatoriska fält.' 
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ 
+                error: 'Ogiltig e-postadress.' 
+            });
+        }
+
+        // Check if Resend is configured
+        if (!resendService.isServiceConfigured()) {
+            console.log('⚠️ Resend not configured, contact form submission logged only');
+            log('info', 'Contact form submission (email not sent)', {
+                name,
+                email,
+                subject,
+                message: message.substring(0, 100) + '...',
+                ip: req.ip
+            });
+            
+            return res.status(200).json({ 
+                success: true, 
+                message: 'Meddelandet har mottagits. Tack för ditt intresse!' 
+            });
+        }
+
+        // Send email to admin
+        await resendService.sendContactEmail({ name, email, subject, message });
+        
+        // Send confirmation email to user
+        await resendService.sendConfirmationEmail({ name, email });
+        
+        log('info', 'Contact form submitted successfully', {
+            name,
+            email,
+            subject,
+            ip: req.ip
+        });
+
+        res.json({ 
+            success: true, 
+            message: 'Tack för ditt meddelande! Du kommer att få en bekräftelse via e-post.' 
+        });
+        
+    } catch (error) {
+        console.error('❌ Contact form error:', error);
+        log('error', 'Contact form submission failed', {
+            error: error.message,
+            ip: req.ip
+        });
+        
+        res.status(500).json({ 
+            error: 'Ett fel uppstod vid skickande av meddelandet. Försök igen senare.' 
+        });
     }
 });
 
