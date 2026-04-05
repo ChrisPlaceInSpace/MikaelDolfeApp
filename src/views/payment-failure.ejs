@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Betalning misslyckades - Mikael Dolfe</title>
-    <meta name="description" content="Din betalning kunde inte genomföras">
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<%- include('components/head-base', {
+  pageTitle: 'Betalning misslyckades - Mikael Dolfe',
+  pageDescription: 'Din betalning kunde inte genomföras',
+  canonicalPath: '/payment/failure',
+  ogImage: absoluteUrl('/assets/favicon.svg'),
+  ogType: 'website'
+}) %>
     <style>
         .failure-container {
             max-width: 600px;

@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Köp <%= book.title %> - Mikael Dolfe</title>
-    <meta name="description" content="Köp <%= book.title %> av Mikael Dolfe">
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<% 
+  const purchaseDesc = 'Köp ' + book.title + ' av Mikael Dolfe';
+  const purchaseOg = book.cover_image ? absoluteUrl(book.cover_image) : absoluteUrl('/assets/favicon.svg');
+%>
+<%- include('components/head-base', {
+  pageTitle: 'Köp ' + book.title + ' - Mikael Dolfe',
+  pageDescription: purchaseDesc,
+  canonicalPath: '/purchase/' + book.id,
+  ogImage: purchaseOg,
+  ogType: 'website'
+}) %>
     <script src="https://js.stripe.com/v3/"></script>
     <style>
         .purchase-container {
@@ -474,7 +478,7 @@
             
             <div class="book-info">
                 <% if (book.cover_image) { %>
-                    <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover">
+                    <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover" width="150" height="225" loading="lazy" decoding="async">
                 <% } else { %>
                     <div class="book-cover-placeholder">
                         Omslagsbild saknas

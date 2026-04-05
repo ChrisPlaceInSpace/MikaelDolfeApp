@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= book.title %> - Mikael Dolfe</title>
-    <meta name="description" content="<%= book.description || book.subtitle || book.title %>">
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<% 
+  const bookDesc = book.description || book.subtitle || book.title;
+  const bookOgImage = book.cover_image ? absoluteUrl(book.cover_image) : absoluteUrl('/assets/favicon.svg');
+%>
+<%- include('components/head-base', {
+  pageTitle: book.title + ' - Mikael Dolfe',
+  pageDescription: bookDesc,
+  canonicalPath: '/book/' + book.id,
+  ogImage: bookOgImage,
+  ogType: 'website',
+  ogDescription: bookDesc
+}) %>
     <style>
         html, body {
             height: 100%;
@@ -327,7 +332,7 @@
                 flex-direction: column;
                 align-items: center;
             }
-            book-detail {
+            .book-detail {
                 padding: 0;
                 padding-bottom: 4rem;
             }
@@ -437,7 +442,7 @@
                 <div class="book-content">
                     <div class="book-cover-section">
                         <% if (book.cover_image) { %>
-                            <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover">
+                            <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="book-cover" width="300" height="450" fetchpriority="high" decoding="async">
                         <% } else { %>
                             <div class="book-cover-placeholder">
                                 Omslagsbild saknas
@@ -452,7 +457,6 @@
                             </div>
                         <% } %>
                         
-                        <!-- Debug: book.price = <%= book.price %> -->
                         <% if (book.price && book.price > 0) { %>
                             <div class="book-price-section">
                                 <div class="price-display">                                    

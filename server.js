@@ -19,9 +19,6 @@ const PORT = process.env.PORT || 3000;
 // Trust proxy for proper IP handling behind Nginx (must be set before any middleware)
 app.set('trust proxy', true);
 
-// Debug: Log trust proxy setting
-console.log('Trust proxy setting:', app.get('trust proxy'));
-
 // Production optimizations
 if (process.env.NODE_ENV === 'production') {
     // Disable x-powered-by header for security
@@ -54,8 +51,8 @@ function log(level, message, data = null) {
     }
 }
 
-// Database configuration
-const databaseType = process.env.DATABASE_TYPE || 'sqlite';
+// Database configuration (Supabase only; see src/services/database.js)
+const databaseType = process.env.DATABASE_TYPE || 'supabase';
 
 // Database setup - now using DatabaseManager
 const DatabaseManager = require('./src/services/database');
@@ -74,8 +71,8 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            fontSrc: ["'self'"],
             imgSrc: ["'self'", "data:", "https:"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
             frameSrc: ["'self'", "https://js.stripe.com"],
@@ -164,13 +161,12 @@ app.use('/assets', express.static(path.join(__dirname, 'assets'), {
 // Serve favicon from root
 app.use('/favicon.svg', express.static(path.join(__dirname, 'assets')));
 
-// Only serve local uploads if using SQLite
-if (databaseType === 'sqlite') {
-    app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
-        maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0'
-    }));
-}
-
+// Local upload fallbacks (when not using Supabase public URLs)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',
+    etag: true,
+    lastModified: true
+}));
 
 // Session configuration
 app.use(session({
@@ -191,48 +187,40 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 
-// Helper function to get image URL
+// Helper function to get image URL (Supabase Storage; assets fallback for bundled images)
 function getImageUrl(bucket, filename) {
-    if (databaseType === 'supabase') {
-        return `https://${process.env.SUPABASE_URL.split('//')[1]}/storage/v1/object/public/${bucket}/${filename}`;
-    } else {
-        // Check if file exists in assets/images first, otherwise use uploads
-        const assetsPath = path.join(__dirname, 'assets/images', bucket, filename);
-        if (fs.existsSync(assetsPath)) {
-            return `/assets/images/${bucket}/${filename}`;
-        }
-        return `/uploads/${bucket}/${filename}`;
+    if (process.env.SUPABASE_URL) {
+        const host = process.env.SUPABASE_URL.replace(/^https?:\/\//, '');
+        return `https://${host}/storage/v1/object/public/${bucket}/${filename}`;
     }
+    const assetsPath = path.join(__dirname, 'assets/images', bucket, filename);
+    if (fs.existsSync(assetsPath)) {
+        return `/assets/images/${bucket}/${filename}`;
+    }
+    return `/uploads/${bucket}/${filename}`;
+}
+
+// Public site URL for canonical / Open Graph (override in production if needed)
+const siteUrl = (process.env.PUBLIC_SITE_URL || 'https://mikaeldolfe.se').replace(/\/$/, '');
+function absoluteUrl(urlOrPath) {
+    if (urlOrPath == null || urlOrPath === '') {
+        return `${siteUrl}/assets/favicon.svg`;
+    }
+    const s = String(urlOrPath);
+    if (/^https?:\/\//i.test(s)) {
+        return s;
+    }
+    const pathPart = s.startsWith('/') ? s : `/${s}`;
+    return `${siteUrl}${pathPart}`;
 }
 
 // Make helper available to all views
 app.locals.getImageUrl = getImageUrl;
+app.locals.siteUrl = siteUrl;
+app.locals.absoluteUrl = absoluteUrl;
 
-// File upload configuration
-let storage;
-if (databaseType === 'supabase') {
-    // For Supabase, store files in memory and upload to Supabase Storage
-    storage = multer.memoryStorage();
-} else {
-    // For SQLite, store files locally
-    storage = multer.diskStorage({
-        destination: function (req, file, cb) {
-            let uploadDir;
-            // Map field names to proper directory names
-            if (file.fieldname === 'cover_image') {
-                uploadDir = path.join(__dirname, 'uploads', 'books');
-            } else {
-                uploadDir = path.join(__dirname, 'uploads', file.fieldname);
-            }
-            fs.ensureDirSync(uploadDir);
-            cb(null, uploadDir);
-        },
-        filename: function (req, file, cb) {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-            cb(null, uniqueSuffix + path.extname(file.originalname));
-        }
-    });
-}
+// File upload configuration — memory buffer, then Supabase Storage
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
     storage: storage,
@@ -431,23 +419,17 @@ app.post('/admin/books', requireAuth, uploadLimiter, upload.single('cover_image'
         let coverImage = null;
         
         if (req.file) {
-            if (databaseType === 'supabase') {
-                try {
-                    // Upload to Supabase Storage
-                    const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(req.file.originalname)}`;
-                    const bucketName = process.env.SUPABASE_STORAGE_BUCKET_BOOKS || 'books';
-                    console.log('Uploading file to Supabase:', { fileName, bucketName, mimetype: req.file.mimetype });
-                    const uploadResult = await db.uploadFile(req.file, bucketName, fileName);
-                    console.log('Upload result:', uploadResult);
-                    coverImage = db.getFileUrl(bucketName, fileName);
-                    console.log('Generated cover image URL:', coverImage);
-                } catch (uploadError) {
-                    console.error('Supabase upload error:', uploadError);
-                    throw new Error(`File upload failed: ${uploadError.message}`);
-                }
-            } else {
-                // Local storage
-                coverImage = `/uploads/books/${req.file.filename}`;
+            try {
+                const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(req.file.originalname)}`;
+                const bucketName = process.env.SUPABASE_STORAGE_BUCKET_BOOKS || 'books';
+                console.log('Uploading file to Supabase:', { fileName, bucketName, mimetype: req.file.mimetype });
+                const uploadResult = await db.uploadFile(req.file, bucketName, fileName);
+                console.log('Upload result:', uploadResult);
+                coverImage = db.getFileUrl(bucketName, fileName);
+                console.log('Generated cover image URL:', coverImage);
+            } catch (uploadError) {
+                console.error('Supabase upload error:', uploadError);
+                throw new Error(`File upload failed: ${uploadError.message}`);
             }
         }
         
@@ -487,23 +469,17 @@ app.post('/admin/books/:id', requireAuth, uploadLimiter, upload.single('cover_im
         let coverImage = req.body.existing_cover_image;
         
         if (req.file) {
-            if (databaseType === 'supabase') {
-                try {
-                    // Upload to Supabase Storage
-                    const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(req.file.originalname)}`;
-                    const bucketName = process.env.SUPABASE_STORAGE_BUCKET_BOOKS || 'books';
-                    console.log('Uploading file to Supabase:', { fileName, bucketName, mimetype: req.file.mimetype });
-                    const uploadResult = await db.uploadFile(req.file, bucketName, fileName);
-                    console.log('Upload result:', uploadResult);
-                    coverImage = db.getFileUrl(bucketName, fileName);
-                    console.log('Generated cover image URL:', coverImage);
-                } catch (uploadError) {
-                    console.error('Supabase upload error:', uploadError);
-                    throw new Error(`File upload failed: ${uploadError.message}`);
-                }
-            } else {
-                // Local storage
-                coverImage = `/uploads/books/${req.file.filename}`;
+            try {
+                const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(req.file.originalname)}`;
+                const bucketName = process.env.SUPABASE_STORAGE_BUCKET_BOOKS || 'books';
+                console.log('Uploading file to Supabase:', { fileName, bucketName, mimetype: req.file.mimetype });
+                const uploadResult = await db.uploadFile(req.file, bucketName, fileName);
+                console.log('Upload result:', uploadResult);
+                coverImage = db.getFileUrl(bucketName, fileName);
+                console.log('Generated cover image URL:', coverImage);
+            } catch (uploadError) {
+                console.error('Supabase upload error:', uploadError);
+                throw new Error(`File upload failed: ${uploadError.message}`);
             }
         }
         

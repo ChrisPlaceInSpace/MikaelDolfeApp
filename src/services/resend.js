@@ -50,7 +50,7 @@ class ResendService {
                 subject: `Kontakt från ${name}${subject ? ` - ${subject}` : ''}`,
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #333;">Nytt kontaktmeddelande</h2>
+                        <h2 style="color: #333;">Nytt kontaktmeddelande från mikaeldolfe.se</h2>
                         <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
                             <p><strong>Från:</strong> ${name}</p>
                             <p><strong>E-post:</strong> ${email}</p>
@@ -70,10 +70,8 @@ class ResendService {
             };
 
             console.log('📧 Sending contact email via Resend...');
-            console.log('📧 Email data:', JSON.stringify(emailData, null, 2));
             const result = await this.resend.emails.send(emailData);
-            console.log('✅ Contact email sent successfully:', result);
-            console.log('✅ Full result:', JSON.stringify(result, null, 2));
+            console.log('✅ Contact email sent successfully, id:', result.data?.id || result.id);
             
             return {
                 success: true,
@@ -117,10 +115,8 @@ class ResendService {
             };
 
             console.log('📧 Sending confirmation email via Resend...');
-            console.log('📧 Email data:', JSON.stringify(emailData, null, 2));
             const result = await this.resend.emails.send(emailData);
-            console.log('✅ Confirmation email sent successfully:', result);
-            console.log('✅ Full result:', JSON.stringify(result, null, 2));
+            console.log('✅ Confirmation email sent successfully, id:', result.data?.id || result.id);
             
             return {
                 success: true,

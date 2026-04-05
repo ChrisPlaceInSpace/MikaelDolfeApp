@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Köp bekräftat - Mikael Dolfe</title>
-    <meta name="description" content="Ditt köp av <%= book.title %> har bekräftats">
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<% 
+  const confirmDesc = 'Ditt köp av ' + book.title + ' har bekräftats';
+  const confirmOg = book.cover_image ? absoluteUrl(book.cover_image) : absoluteUrl('/assets/favicon.svg');
+%>
+<%- include('components/head-base', {
+  pageTitle: 'Köp bekräftat - Mikael Dolfe',
+  pageDescription: confirmDesc,
+  canonicalPath: '/',
+  ogImage: confirmOg,
+  ogType: 'website'
+}) %>
     <style>
         html, body {
             height: 100%;

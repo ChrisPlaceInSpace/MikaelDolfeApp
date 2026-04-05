@@ -1,0 +1,31 @@
+<% 
+  const path = typeof canonicalPath === 'string' ? (canonicalPath.startsWith('/') ? canonicalPath : '/' + canonicalPath) : '/';
+  const fullUrl = siteUrl + path;
+  const title = typeof pageTitle !== 'undefined' ? pageTitle : 'Mikael Dolfe';
+  const desc = typeof pageDescription !== 'undefined' ? pageDescription : '';
+  const ogT = typeof ogTitle !== 'undefined' ? ogTitle : title;
+  const ogD = typeof ogDescription !== 'undefined' ? ogDescription : desc;
+  const ogImg = typeof ogImage !== 'undefined' && ogImage ? ogImage : absoluteUrl('/assets/favicon.svg');
+  const type = typeof ogType !== 'undefined' ? ogType : 'website';
+%>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<% if (typeof preloadImageUrl !== 'undefined' && preloadImageUrl) { %>
+    <link rel="preload" as="image" href="<%= preloadImageUrl %>">
+<% } %>
+    <title><%= title %></title>
+<% if (desc) { %>
+    <meta name="description" content="<%= desc %>">
+<% } %>
+    <link rel="canonical" href="<%= fullUrl %>">
+    <meta property="og:title" content="<%= ogT %>">
+<% if (ogD) { %>
+    <meta property="og:description" content="<%= ogD %>">
+<% } %>
+    <meta property="og:url" content="<%= fullUrl %>">
+    <meta property="og:image" content="<%= ogImg %>">
+    <meta property="og:type" content="<%= type %>">
+    <meta property="og:locale" content="sv_SE">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="stylesheet" href="/assets/css/styles.css">

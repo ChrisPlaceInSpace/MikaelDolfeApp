@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mikael Dolfe - Författare</title>
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<% 
+  const heroProfileUrl = getImageUrl('profile', 'MD-Profilbild.jpeg');
+  const indexOgImage = absoluteUrl(heroProfileUrl);
+%>
+<%- include('components/head-base', {
+  pageTitle: 'Mikael Dolfe - Författare',
+  pageDescription: 'Mikael Dolfe – svensk författare. Läs om böcker, blogg och kontakt.',
+  canonicalPath: '/',
+  ogImage: indexOgImage,
+  ogType: 'website',
+  preloadImageUrl: heroProfileUrl
+}) %>
 </head>
 <body>
     <%- include('components/header') %>
@@ -21,7 +27,7 @@
                     <div class="hero-main">
                         <div class="hero-author">
                             <div class="author-display-image">
-                                <img src="<%= getImageUrl('profile', 'MD-Profilbild.jpeg') %>" alt="Mikael Dolfe - Författare" class="author-display-picture">
+                                <img src="<%= heroProfileUrl %>" alt="Mikael Dolfe - Författare" class="author-display-picture" width="200" height="200" fetchpriority="high">
                             </div>
                         </div>
                         <div class="hero-book">
@@ -70,7 +76,7 @@
                         <p>Mikael bor och arbetar i Sverige, där han inspireras av landskapet, människorna han möter och livets små ögonblick som ofta döljer de största sanningarna.</p>
                     </div>
                     <div class="about-image">
-                        <img src="<%= getImageUrl('profile', 'Mikael-TEC.jpg') %>" alt="Mikael Dolfe - Författare" class="author-profile-image">
+                        <img src="<%= getImageUrl('profile', 'Mikael-TEC.jpg') %>" alt="Mikael Dolfe - Författare" class="author-profile-image" width="600" height="450" loading="lazy" decoding="async">
                     </div>
                 </div>
             </div>

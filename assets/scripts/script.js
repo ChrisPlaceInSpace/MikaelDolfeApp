@@ -303,8 +303,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, observerOptions);
     
-    // Observe all sections
-    const sections = document.querySelectorAll('section');
+    // Observe sections below the hero (hero must paint immediately for LCP)
+    const sections = document.querySelectorAll('section:not(#hem)');
     sections.forEach(section => {
         section.style.opacity = '0';
         section.style.transform = 'translateY(30px)';
@@ -318,17 +318,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Content loading functions
     async function loadBooks() {
         try {
-            console.log('🔄 Loading books...');
             const response = await fetch('/api/books');
             const books = await response.json();
-            console.log('📚 Books data received:', books);
             
             const container = document.getElementById('books-container');
-            console.log('📦 Books container found:', container);
             
             // Exit early if books container doesn't exist (e.g., on book details page)
             if (!container) {
-                console.log('📦 No books container found, skipping books load');
                 return;
             }
             
@@ -339,13 +335,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const booksHTML = books.map(book => {
                 const hasPrice = book.price && book.price > 0;
-                console.log(`Book: ${book.title}, Price: ${book.price}, Has Price: ${hasPrice}`);
                 
                 return `
                 <div class="book-card" data-book-id="${book.id}" style="cursor: pointer;">
                     <div class="book-cover">
                         ${book.cover_image ? 
-                            `<img src="${book.cover_image}" alt="${book.title}">` : 
+                            `<img src="${book.cover_image}" alt="${book.title}" loading="lazy" decoding="async" width="280" height="400">` : 
                             `<h3>${book.title}</h3>${book.subtitle ? `<p class="book-subtitle">${book.subtitle}</p>` : ''}`
                         }
                     </div>
@@ -362,8 +357,6 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             }).join('');
             
-            // console.log('📝 Books HTML generated:', booksHTML);
-            // console.log('🔍 Checking if buttons are in HTML:', booksHTML.includes('btn-purchase'));
             container.innerHTML = booksHTML;
             
             // Add event listeners for book cards
@@ -378,14 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = `/book/${bookId}`;
                 });
             });
-            console.log('✅ Books loaded successfully');
-            
-            // Additional debugging
-            const buttons = document.querySelectorAll('.btn-purchase');
-            // console.log(`🔘 Found ${buttons.length} purchase buttons in DOM`);
-            buttons.forEach((btn, index) => {
-                console.log(`Button ${index + 1}:`, btn.textContent, btn.style.display, btn.offsetHeight);
-            });
         } catch (error) {
             console.error('❌ Error loading books:', error);
             const container = document.getElementById('books-container');
@@ -398,17 +383,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadBlogPosts() {
         try {
-            console.log('🔄 Loading blog posts...');
             const response = await fetch('/api/blog');
             const posts = await response.json();
-            console.log('📝 Blog posts data received:', posts);
             
             const container = document.getElementById('blog-container');
-            console.log('📦 Blog container found:', container);
             
             // Exit early if blog container doesn't exist (e.g., on book details page)
             if (!container) {
-                console.log('📦 No blog container found, skipping blog posts load');
                 return;
             }
             
@@ -426,7 +407,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </article>
             `).join('');
             
-            // console.log('📝 Blog posts HTML generated:', postsHTML);
             container.innerHTML = postsHTML;
             
             // Add event listeners for blog posts
@@ -441,8 +421,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = `/blog/${blogId}`;
                 });
             });
-            
-            console.log('✅ Blog posts loaded successfully');
         } catch (error) {
             console.error('❌ Error loading blog posts:', error);
             const container = document.getElementById('blog-container');
