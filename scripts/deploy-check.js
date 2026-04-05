@@ -38,19 +38,19 @@ const checks = [
     {
         name: 'Database Configuration',
         check: () => {
-            if (process.env.DATABASE_TYPE === 'supabase') {
-                return 'Using Supabase';
-            } else if (process.env.DATABASE_TYPE === 'sqlite') {
-                return 'Using SQLite (not recommended for production)';
-            } else {
-                return 'DATABASE_TYPE not set';
-            }
+            const t = process.env.DATABASE_TYPE || 'supabase';
+            if (t === 'supabase') return 'OK';
+            return `Invalid DATABASE_TYPE=${t} (use supabase only)`;
         }
     },
     {
         name: 'Node Environment',
         check: () => {
-            return process.env.NODE_ENV || 'development';
+            const env = process.env.NODE_ENV || 'development';
+            if (env !== 'production') {
+                return `Warning: NODE_ENV=${env} (set to 'production' before deploying)`;
+            }
+            return 'OK';
         }
     },
     {
@@ -59,10 +59,9 @@ const checks = [
             const required = [
                 'server.js',
                 'package.json',
-                'services/database.js',
-                'services/supabase.js',
-                'services/stripe.js',
-                'views/index.ejs'
+                'src/services/database.js',
+                'src/services/supabase.js',
+                'src/views/index.ejs'
             ];
             
             const missing = required.filter(file => !fs.existsSync(file));
@@ -78,8 +77,10 @@ let allPassed = true;
 
 checks.forEach(check => {
     const result = check.check();
-    const status = result === 'OK' ? '✅' : '❌';
-    if (result !== 'OK') allPassed = false;
+    const isOk = result === 'OK';
+    const isWarning = result.startsWith('Warning:');
+    const status = isOk ? '✅' : isWarning ? '⚠️ ' : '❌';
+    if (!isOk && !isWarning) allPassed = false;
     
     console.log(`${status} ${check.name}: ${result}`);
 });

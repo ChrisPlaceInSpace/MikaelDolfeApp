@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= post.title %> - Mikael Dolfe</title>
-    <meta name="description" content="<%= post.excerpt || post.title %>">
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<% 
+  const postDesc = post.excerpt || post.title;
+  const postOgImage = post.featured_image ? absoluteUrl(post.featured_image) : absoluteUrl('/assets/favicon.svg');
+%>
+<%- include('components/head-base', {
+  pageTitle: post.title + ' - Mikael Dolfe',
+  pageDescription: postDesc,
+  canonicalPath: '/blog/' + post.id,
+  ogImage: postOgImage,
+  ogType: 'article',
+  ogDescription: postDesc
+}) %>
     <style>
         html, body {
             height: 100%;
@@ -272,7 +277,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Mikael Dolfe. Alla rättigheter förbehållna.</p>
+            <p>&copy; 2025 Mikael Dolfe. Alla rättigheter förbehållna.</p>
         </div>
     </footer>
 
