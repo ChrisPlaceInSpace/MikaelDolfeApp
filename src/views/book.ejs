@@ -186,7 +186,7 @@
         }
         
         .btn-purchase {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: linear-gradient(135deg, #2c3e50, #3d5166);
             color: white;
             padding: 1rem 2rem;
             font-size: 1.2rem;
@@ -195,13 +195,37 @@
             border-radius: 8px;
             display: inline-block;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
         }
         
         .btn-purchase:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
-            background: linear-gradient(135deg, #c0392b, #a93226);
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.4);
+            background: linear-gradient(135deg, #3d5166, #2c3e50);
+            color: white;
+        }
+
+        .book-purchase-info {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+        }
+
+        .book-audiobook-link {
+            margin-top: 1.2rem;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .book-audiobook-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .book-audiobook-link a:hover {
+            text-decoration: underline;
         }
         
         .back-link {
@@ -459,10 +483,9 @@
                         
                         <% if (book.price && book.price > 0) { %>
                             <div class="book-price-section">
-                                <div class="price-display">                                    
-                                    <span class="price-amount"><%= book.price %> SEK</span>
-                                </div>
-                                <a href="/#kontakt" class="btn btn-purchase">Köp nu</a>
+                                <p class="book-purchase-info">Boken kan köpas för <%= book.price %> kr + frakt (69 kr).</p>
+                                <a href="/#kontakt" class="btn btn-purchase">Kontakta Mikael</a>
+                                <p class="book-audiobook-link"><a href="https://www.adlibris.com/sv/bok/alska-har-sin-tid-boken-om-nancy-9789181009453" target="_blank" rel="noopener noreferrer">För att köpa boken som ljudbok, klicka här</a></p>
                             </div>
                         <% } else { %>
                             <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 2rem; text-align: center; color: #6c757d;">

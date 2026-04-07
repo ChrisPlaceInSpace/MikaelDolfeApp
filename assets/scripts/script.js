@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${hasPrice ? `<span class="price-amount">${book.price} SEK</span>` : ''}
                         </div>
                         <div class="book-actions" style="${hasPrice ? '' : 'visibility: hidden; height: 2.5rem;'}">
-                            ${hasPrice ? `<a href="/#kontakt" class="btn-purchase" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Köp</a>` : ''}
+                            ${hasPrice ? `<a href="/#kontakt" class="btn-purchase" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Kontakta Mikael</a>` : ''}
                         </div>
                     </div>
                 </div>
@@ -398,14 +398,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            const postsHTML = posts.map(post => `
+            const latest = posts.slice(0, 3);
+            const postsHTML = latest.map(post => `
                 <article class="blog-post" data-blog-id="${post.id}" style="cursor: pointer;">
                     <div class="blog-date">${new Date(post.created_at).toLocaleDateString('sv-SE')}</div>
                     <h3>${post.title}</h3>
                     ${post.excerpt ? `<p>${post.excerpt}</p>` : ''}
                     <a href="/blog/${post.id}" class="read-more">Läs mer</a>
                 </article>
-            `).join('');
+            `).join('') + `<div class="blog-see-all"><a href="/blogg">Visa alla inlägg →</a></div>`;
             
             container.innerHTML = postsHTML;
             

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<%- include('components/head-base', {
+  pageTitle: 'Blogg - Mikael Dolfe',
+  pageDescription: 'Följ Mikaels tankar, inspiration och processer som författare och konstnär.',
+  canonicalPath: '/blogg',
+  ogType: 'website'
+}) %>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .blogg-hero {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 5rem 0 3rem;
+            text-align: center;
+        }
+
+        .blogg-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .blogg-hero p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .blogg-content {
+            padding: 4rem 0;
+            background: #f8f9fa;
+        }
+
+        .no-posts {
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.1rem;
+            padding: 3rem 0;
+        }
+    </style>
+</head>
+<body>
+    <%- include('components/header') %>
+
+    <main>
+        <section class="blogg-hero">
+            <div class="container">
+                <h1>Blogg</h1>
+                <p>Följ Mikaels tankar, inspiration och processer som författare och konstnär.</p>
+            </div>
+        </section>
+
+        <section class="blogg-content">
+            <div class="container">
+                <% if (posts && posts.length > 0) { %>
+                    <div class="blog-grid">
+                        <% posts.forEach(function(post) { %>
+                            <article class="blog-post" onclick="window.location.href='/blog/<%= post.id %>'" style="cursor: pointer;">
+                                <div class="blog-date"><%= new Date(post.created_at).toLocaleDateString('sv-SE') %></div>
+                                <h3><%= post.title %></h3>
+                                <% if (post.excerpt) { %>
+                                    <p><%= post.excerpt %></p>
+                                <% } %>
+                                <a href="/blog/<%= post.id %>" class="read-more" onclick="event.stopPropagation()">Läs mer</a>
+                            </article>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="no-posts">Inga blogginlägg tillgängliga än.</div>
+                <% } %>
+            </div>
+        </section>
+    </main>
+
+    <%- include('components/footer') %>
+
+    <script src="/assets/scripts/script.js"></script>
+</body>
+</html>
