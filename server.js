@@ -625,6 +625,16 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
+app.get('/blogg', async (req, res) => {
+    try {
+        const posts = await db.getAllBlogPosts();
+        res.render('blogg', { posts });
+    } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 // Public API endpoints for the frontend
 app.get('/api/blog', async (req, res) => {
     try {

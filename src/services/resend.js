@@ -46,7 +46,7 @@ class ResendService {
         try {
             const emailData = {
                 from: process.env.RESEND_FROM_EMAIL || 'noreply@mikaeldolfe.se',
-                to: [process.env.RESEND_TO_EMAIL || 'info@mikaeldolfe.se'],
+                to: [process.env.RESEND_TO_EMAIL || 'kontakta@mikaeldolfe.se'],
                 subject: `Kontakt från ${name}${subject ? ` - ${subject}` : ''}`,
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
