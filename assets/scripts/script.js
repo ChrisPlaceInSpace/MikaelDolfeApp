@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${hasPrice ? `<span class="price-amount">${book.price} SEK</span>` : ''}
                         </div>
                         <div class="book-actions" style="${hasPrice ? '' : 'visibility: hidden; height: 2.5rem;'}">
-                            ${hasPrice ? `<a href="/purchase/${book.id}" class="btn-purchase" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Köp</a>` : ''}
+                            ${hasPrice ? `<a href="/#kontakt" class="btn-purchase" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Köp</a>` : ''}
                         </div>
                     </div>
                 </div>
