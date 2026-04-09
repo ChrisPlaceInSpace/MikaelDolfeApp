@@ -16,8 +16,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Trust proxy for proper IP handling behind Nginx (must be set before any middleware)
-app.set('trust proxy', true);
+// Trust exactly one proxy hop (the hosting platform's reverse proxy / Nginx).
+// Using `true` would trust any X-Forwarded-For header and let clients spoof IPs.
+app.set('trust proxy', 1);
 
 // Production optimizations
 if (process.env.NODE_ENV === 'production') {
@@ -127,33 +128,14 @@ const speedLimiter = slowDown({
     delayMs: 500 // begin adding 500ms of delay per request above 50
 });
 
-// Debug middleware to log IP addresses
-app.use((req, res, next) => {
-    console.log('Request IP:', req.ip, 'X-Forwarded-For:', req.get('X-Forwarded-For'), 'Remote Address:', req.connection.remoteAddress);
-    next();
-});
-
-// Test route to check static file serving
-app.get('/test-static', (req, res) => {
-    res.json({
-        message: 'Static file test',
-        assetsPath: '/assets',
-        cssPath: '/assets/css/styles.css',
-        jsPath: '/assets/scripts/script.js',
-        faviconPath: '/assets/favicon.svg'
-    });
-});
-
-app.use(limiter);
-app.use(speedLimiter);
-
 // Middleware
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static assets from assets folder with caching
+// Registered BEFORE rate limiters so static files are never throttled or counted
 app.use('/assets', express.static(path.join(__dirname, 'assets'), {
-    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0', // Cache for 1 year in production
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',
     etag: true,
     lastModified: true
 }));
@@ -167,6 +149,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
     etag: true,
     lastModified: true
 }));
+
+// Rate limiting applied only to dynamic routes (after static assets)
+app.use(limiter);
+app.use(speedLimiter);
 
 // Session configuration
 app.use(session({
@@ -621,8 +607,15 @@ app.get('/admin/orders', requireAuth, async (req, res) => {
 
 
 // Serve the main website
-app.get('/', (req, res) => {
-    res.render('index');
+app.get('/', async (req, res) => {
+    try {
+        const allBlurbs = await db.getAllBookBlurbs();
+        const blurbs = allBlurbs.slice(0, 3);
+        res.render('index', { blurbs });
+    } catch (error) {
+        log('warn', 'Could not load blurbs for homepage', { error: error.message });
+        res.render('index', { blurbs: [] });
+    }
 });
 
 app.get('/blogg', async (req, res) => {

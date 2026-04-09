@@ -128,10 +128,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
         if (scrollTop > 100) {
-            header.style.background = 'rgba(255, 255, 255, 0.95)';
+            header.style.background = 'rgba(250, 248, 244, 0.96)';
             header.style.backdropFilter = 'blur(10px)';
         } else {
-            header.style.background = '#fff';
+            header.style.background = '#faf8f4';
             header.style.backdropFilter = 'none';
         }
         
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${hasPrice ? `<span class="price-amount">${book.price} SEK</span>` : ''}
                         </div>
                         <div class="book-actions" style="${hasPrice ? '' : 'visibility: hidden; height: 2.5rem;'}">
-                            ${hasPrice ? `<a href="/#kontakt" class="btn-purchase" style="background: #e74c3c !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Kontakta Mikael</a>` : ''}
+                            ${hasPrice ? `<a href="/#kontakt" class="btn-purchase" style="background: #8c3a2b !important; color: white !important; display: block !important; padding: 0.6rem 1rem !important; text-align: center !important; text-decoration: none !important; border-radius: 5px !important; font-weight: 600 !important;">Kontakta Mikael</a>` : ''}
                         </div>
                     </div>
                 </div>

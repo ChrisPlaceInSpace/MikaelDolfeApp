@@ -14,425 +14,343 @@
   ogDescription: bookDesc
 }) %>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        main {
-            flex: 1;
-        }
-        
+        html, body { height: 100%; }
+        body { display: flex; flex-direction: column; }
+        main { flex: 1; }
+
         .book-detail {
             padding: 4rem 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: #faf8f4;
             min-height: calc(100vh - 200px);
         }
-        
+
         .book-container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 0 2rem;            
+            padding: 0 1.25rem;
         }
-        
+
         .book-header {
             text-align: center;
             margin-bottom: 3rem;
         }
-        
+
         .book-title {
-            font-size: 3rem;
-            color: #2c3e50;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: #2d1b0e;
             margin-bottom: 1rem;
             font-family: 'Playfair Display', serif;
+            line-height: 1.2;
         }
-        
+
         .book-subtitle {
-            font-size: 1.9rem;
-            color: #5e6869;
-            /* color: #7f8c8d; */
+            font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+            color: #7a6a5a;
             font-style: italic;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
+            font-family: 'Playfair Display', serif;
         }
-        
+
         .book-meta {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 1rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
         }
-        
+
         .meta-item {
             background: white;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 1rem;
             border-radius: 20px;
-            font-size: 0.9rem;
-            color: #2c3e50;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.85rem;
+            color: #2d1b0e;
+            box-shadow: 0 2px 8px rgba(45, 27, 14, 0.08);
+            border: 1px solid #e8ddd0;
         }
-        
+
         .book-content {
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 3rem;
             align-items: start;
         }
-        
+
         .book-cover-section {
             text-align: center;
             display: grid;
             place-items: center;
         }
-        
+
         .book-cover {
             width: 100%;
             max-width: 300px;
             height: 450px;
             object-fit: cover;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 6px 6px 48px 6px;
+            box-shadow: 0 12px 40px rgba(45, 27, 14, 0.22);
             margin-bottom: 1rem;
         }
-        
+
         .book-cover-placeholder {
             width: 100%;
             max-width: 300px;
             height: 450px;
-            background: linear-gradient(135deg, #e9ecef, #dee2e6);
-            border-radius: 10px;
+            background: #f3ede3;
+            border-radius: 6px 6px 48px 6px;
+            border: 2px solid #e8ddd0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #6c757d;
-            font-size: 1.2rem;
+            color: #7a6a5a;
+            font-size: 1rem;
             margin: 0 auto 1rem;
         }
-        
+
         .book-details {
             background: white;
             padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(45, 27, 14, 0.09);
+            border: 1px solid #e8ddd0;
         }
-        
+
         .book-description {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #2c3e50;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: #3d2b1f;
             margin-bottom: 2rem;
         }
-        
 
-        
         .btn {
             display: inline-block;
             padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: #8c3a2b;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: all 0.25s ease;
         }
-        
+
         .btn:hover {
+            background: #6e2d20;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 5px 18px rgba(140, 58, 43, 0.35);
         }
-        
+
         .btn-secondary {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            background: #7a6a5a;
         }
-        
+
         .btn-secondary:hover {
-            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+            background: #5e5148;
+            box-shadow: 0 5px 15px rgba(94, 81, 72, 0.3);
         }
-        
+
         .book-price-section {
             margin-top: 2rem;
             padding: 2rem;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 15px;
+            background: #f3ede3;
+            border-radius: 12px;
             text-align: center;
-            /* border: 2px solid #3498db; */
-            border: 2px solid #bdc3c7;
+            border: 1px solid #e8ddd0;
         }
-        
+
         .price-display {
             margin-bottom: 1.5rem;
         }
-        
+
         .price-label {
-            font-size: 1.2rem;
-            color: #2c3e50;
+            font-size: 1.1rem;
+            color: #2d1b0e;
             font-weight: 600;
-            margin-right: 0.5rem;
+            margin-right: 0.4rem;
         }
-        
+
         .price-amount {
-            font-size: 1.6rem;
-            color: #e74c3c;
+            font-size: 1.5rem;
+            color: #8c3a2b;
             font-weight: 700;
             font-family: 'Playfair Display', serif;
         }
-        
+
         .btn-purchase {
-            background: linear-gradient(135deg, #2c3e50, #3d5166);
+            background: #8c3a2b;
             color: white;
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
+            padding: 0.875rem 2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             text-decoration: none;
             border-radius: 8px;
             display: inline-block;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 16px rgba(140, 58, 43, 0.3);
         }
-        
+
         .btn-purchase:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.4);
-            background: linear-gradient(135deg, #3d5166, #2c3e50);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(140, 58, 43, 0.4);
+            background: #6e2d20;
             color: white;
         }
 
         .book-purchase-info {
             font-size: 1rem;
-            color: #555;
+            color: #3d2b1f;
             margin-bottom: 1.2rem;
             font-weight: 500;
         }
 
         .book-audiobook-link {
             margin-top: 1.2rem;
-            font-size: 0.95rem;
-            color: #666;
+            font-size: 0.9rem;
+            color: #7a6a5a;
         }
 
         .book-audiobook-link a {
-            color: #3498db;
+            color: #8c3a2b;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .book-audiobook-link a:hover {
             text-decoration: underline;
         }
-        
+
         .back-link {
             display: inline-block;
             margin-bottom: 2rem;
-            color: #3498db;
+            color: #8c3a2b;
             text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1rem;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
-        
+
         .back-link:hover {
             text-decoration: underline;
         }
-        
+
         .breadcrumb {
             margin-bottom: 2rem;
-            font-size: 0.9rem;
-            color: #7f8c8d;
+            font-size: 0.85rem;
+            color: #7a6a5a;
         }
-        
+
         .breadcrumb a {
-            color: #3498db;
+            color: #8c3a2b;
             text-decoration: none;
         }
-        
+
         .breadcrumb a:hover {
             text-decoration: underline;
         }
-        
-        /* Book Blurbs Styling */
+
+        /* Book Blurbs */
         .book-blurbs-section {
             margin-top: 4rem;
-            padding: 3rem 0;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 3rem 2rem;
+            background: #f3ede3;
+            border-radius: 12px;
+            border: 1px solid #e8ddd0;
         }
-        
+
         .blurbs-title {
             text-align: center;
-            font-size: 2.5rem;
-            color: #2c3e50;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            color: #2d1b0e;
             margin-bottom: 3rem;
             font-family: 'Playfair Display', serif;
             position: relative;
+            padding-bottom: 1.25rem;
         }
-        
+
         .blurbs-title::after {
             content: '';
-            display: block;
-            width: 80px;
-            height: 3px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            margin: 1rem auto 0;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 2px;
+            background: #8c3a2b;
             border-radius: 2px;
         }
-        
+
         .blurbs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
-            max-width: 1000px;
+            max-width: 960px;
             margin: 0 auto;
-            padding: 0 2rem;
         }
-        
+
         .blurb-card {
             background: white;
             padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border-left: 4px solid #3498db;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(45, 27, 14, 0.09);
+            border: 1px solid #e8ddd0;
+            border-left: 4px solid #8c3a2b;
+            transition: all 0.25s ease;
             position: relative;
         }
-        
+
         .blurb-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(45, 27, 14, 0.15);
         }
-        
+
         .blurb-card::before {
-            content: '"';
+            content: '\201C';
             position: absolute;
-            top: -10px;
+            top: -8px;
             left: 20px;
             font-size: 4rem;
-            color: #3498db;
+            color: #8c3a2b;
             font-family: 'Playfair Display', serif;
-            opacity: 0.3;
+            opacity: 0.22;
+            line-height: 1;
         }
-        
+
         .blurb-quotation {
-            font-size: 1.1rem;
-            line-height: 1.7;
-            color: #2c3e50;
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: #3d2b1f;
             margin-bottom: 1.5rem;
             font-style: italic;
             position: relative;
             z-index: 1;
         }
-        
+
         .blurb-author {
-            font-size: 0.95rem;
-            color: #7f8c8d;
+            font-size: 0.88rem;
+            color: #7a6a5a;
             font-weight: 600;
             text-align: right;
-            border-top: 1px solid #ecf0f1;
+            border-top: 1px solid #e8ddd0;
             padding-top: 1rem;
         }
-        
+
         @media (max-width: 768px) {
-            .book-content {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            
-            .book-title {
-                font-size: 2rem;
-            }
-            
-            .book-subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .book-meta {
-                flex-direction: column;
-                align-items: center;
-            }
-            .book-detail {
-                padding: 0;
-                padding-bottom: 4rem;
-            }
-            
-            .book-container {
-                padding: 0 1rem;
-                margin-top: 3rem; /* Extra space for mobile header */
-            }
-            
-            .blurbs-title {
-                font-size: 2rem;
-            }
-            
-            .blurbs-grid {
-                grid-template-columns: 1fr;
-                padding: 0 1rem;
-            }
-            
-            .blurb-card {
-                padding: 1.5rem;
-            }
-            
-            .blurb-card::before {
-                display: none; /* Hide quote icon on mobile */
-            }
-            
-            .book-blurbs-section {
-                margin-top: 2rem;
-                padding: 2rem 0;
-            }
-            
-            .btn {
-                padding: 0.875rem 1.5rem;
-                font-size: 1rem;
-                width: 100%;
-                text-align: center;
-            }
+            .book-content { grid-template-columns: 1fr; gap: 2rem; }
+            .book-detail { padding: 0; padding-bottom: 4rem; }
+            .book-container { padding: 0 1rem; margin-top: 3rem; }
+            .blurbs-grid { grid-template-columns: 1fr; }
+            .blurb-card { padding: 1.5rem; }
+            .blurb-card::before { display: none; }
+            .book-blurbs-section { margin-top: 2rem; padding: 2rem 1rem; }
+            .btn { width: 100%; text-align: center; }
         }
-        
-        @media (max-width: 480px) {            
-            
-            .book-title {
-                font-size: 1.8rem;
-            }
-            
-            .book-subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .book-description {
-                font-size: 0.95rem;
-            }
-            
-            .blurbs-title {
-                font-size: 1.8rem;
-            }
-            
-            .blurbs-grid {
-                padding: 0 0.5rem;
-            }
-            
-            .blurb-card {
-                padding: 1rem;
-            }
-            
-            .blurb-quotation {
-                font-size: 1rem;
-            }
-            
-            .blurb-author {
-                font-size: 0.9rem;
-            }
-            
-            .book-blurbs-section {
-                padding: 1.5rem 0;
-            }
+
+        @media (max-width: 480px) {
+            .book-description { font-size: 0.95rem; }
+            .blurb-card { padding: 1rem; }
+            .blurb-quotation { font-size: 1rem; }
+            .book-blurbs-section { padding: 1.5rem 0.5rem; }
         }
     </style>
 </head>
@@ -488,7 +406,7 @@
                                 <p class="book-audiobook-link"><a href="https://www.adlibris.com/sv/bok/alska-har-sin-tid-boken-om-nancy-9789181009453" target="_blank" rel="noopener noreferrer">För att köpa boken som ljudbok, klicka här</a></p>
                             </div>
                         <% } else { %>
-                            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 2rem; text-align: center; color: #6c757d;">
+                            <div style="background: #f3ede3; padding: 1rem; border-radius: 8px; margin-top: 2rem; text-align: center; color: #7a6a5a; border: 1px solid #e8ddd0;">
                                 <p>Denna bok är inte tillgänglig för köp.</p>
                             </div>
                         <% } %>
@@ -518,11 +436,7 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Mikael Dolfe. Alla rättigheter förbehållna.</p>
-        </div>
-    </footer>
+    <%- include('components/footer') %>
 
     <script src="/assets/scripts/script.js"></script>
 </body>

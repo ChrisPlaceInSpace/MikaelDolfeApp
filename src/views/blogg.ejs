@@ -8,52 +8,67 @@
   ogType: 'website'
 }) %>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-
-        main {
-            flex: 1;
-        }
+        html, body { height: 100%; }
+        body { display: flex; flex-direction: column; }
+        main { flex: 1; }
 
         .blogg-hero {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 5rem 0 3rem;
+            background: #f3ede3;
+            border-bottom: 1px solid #e8ddd0;
+            padding: 5rem 0 3.5rem;
             text-align: center;
         }
 
         .blogg-hero h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.8rem;
-            color: #2c3e50;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            color: #2d1b0e;
             margin-bottom: 1rem;
+            position: relative;
+            padding-bottom: 1.25rem;
+        }
+
+        .blogg-hero h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 2px;
+            background: #8c3a2b;
+            border-radius: 2px;
         }
 
         .blogg-hero p {
-            color: #6c757d;
-            font-size: 1.1rem;
-            max-width: 600px;
+            color: #7a6a5a;
+            font-size: 1.05rem;
+            max-width: 580px;
             margin: 0 auto;
         }
 
         .blogg-content {
             padding: 4rem 0;
-            background: #f8f9fa;
+            background: #faf8f4;
         }
 
         .no-posts {
             text-align: center;
-            color: #6c757d;
-            font-size: 1.1rem;
+            color: #7a6a5a;
+            font-size: 1rem;
             padding: 3rem 0;
         }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #8c3a2b;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -69,17 +84,18 @@
 
         <section class="blogg-content">
             <div class="container">
+                <a href="/" class="back-link">← Tillbaka till startsidan</a>
                 <% if (posts && posts.length > 0) { %>
                     <div class="blog-grid">
                         <% posts.forEach(function(post) { %>
-                            <article class="blog-post" onclick="window.location.href='/blog/<%= post.id %>'" style="cursor: pointer;">
+                            <a href="/blog/<%= post.id %>" class="blog-post">
                                 <div class="blog-date"><%= new Date(post.created_at).toLocaleDateString('sv-SE') %></div>
                                 <h3><%= post.title %></h3>
                                 <% if (post.excerpt) { %>
                                     <p><%= post.excerpt %></p>
                                 <% } %>
-                                <a href="/blog/<%= post.id %>" class="read-more" onclick="event.stopPropagation()">Läs mer</a>
-                            </article>
+                                <span class="read-more">Läs mer</span>
+                            </a>
                         <% }); %>
                     </div>
                 <% } else { %>
