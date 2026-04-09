@@ -886,6 +886,18 @@ p {
     transform: translateY(-1px);
 }
 
+.form-privacy-notice {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: #7a6a5a;
+    line-height: 1.5;
+}
+
+.form-privacy-notice a {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
 .contact-info {
     background: white;
     padding: 2rem;
@@ -960,6 +972,16 @@ p {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.38);
     font-size: 0.82rem;
+}
+
+.footer-bottom a {
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+}
+
+.footer-bottom a:hover {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: underline;
 }
 
 /* Footer social links */

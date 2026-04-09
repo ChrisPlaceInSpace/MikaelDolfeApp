@@ -628,6 +628,10 @@ app.get('/blogg', async (req, res) => {
     }
 });
 
+app.get('/integritet', (req, res) => {
+    res.render('integritet');
+});
+
 // Public API endpoints for the frontend
 app.get('/api/blog', async (req, res) => {
     try {
