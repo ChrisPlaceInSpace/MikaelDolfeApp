@@ -4,147 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Mikael Dolfe</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: var(--color-bg-alt);
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
+            padding: 1.5rem;
         }
-        
-        .login-container {
-            background: white;
-            padding: 3rem;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+
+        .login-card {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-card);
+            padding: 3rem 2.5rem;
             width: 100%;
             max-width: 400px;
             text-align: center;
         }
-        
-        .logo {
+
+        .login-logo h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-heading);
+            margin-bottom: 0.25rem;
+        }
+
+        .login-logo h1::after {
+            content: '';
+            display: block;
+            width: 2.5rem;
+            height: 2px;
+            background: var(--color-accent);
+            margin: 0.6rem auto 0;
+            border-radius: 2px;
+        }
+
+        .login-logo p {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-top: 0.75rem;
             margin-bottom: 2rem;
         }
-        
-        .logo h1 {
-            color: #2c3e50;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .logo p {
-            color: #7f8c8d;
-            font-size: 1rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        .login-button {
-            width: 100%;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 1rem;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-        
-        .login-button:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
-        
+
         .error-message {
-            background: #e74c3c;
-            color: white;
-            padding: 1rem;
+            background: #fdf0ee;
+            border: 1px solid #d9a090;
+            color: var(--color-accent);
+            padding: 0.85rem 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
             font-size: 0.9rem;
+            text-align: left;
         }
-        
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--color-heading);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--color-border);
+            border-radius: 8px;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: var(--color-text);
+            background: var(--color-bg);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(140, 58, 43, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            background: var(--color-accent);
+            color: #fff;
+            border: none;
+            padding: 0.875rem 1rem;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+            margin-top: 0.75rem;
+        }
+
+        .login-button:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(140, 58, 43, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
         .back-link {
             margin-top: 2rem;
         }
-        
+
         .back-link a {
-            color: #7f8c8d;
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            color: var(--color-muted);
             text-decoration: none;
-            font-size: 0.9rem;
+            transition: color 0.2s ease;
         }
-        
+
         .back-link a:hover {
-            color: #2c3e50;
+            color: var(--color-accent);
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
+    <div class="login-card">
+        <div class="login-logo">
             <h1>Mikael Dolfe</h1>
             <p>Admin Panel</p>
         </div>
-        
+
         <% if (locals.error) { %>
             <div class="error-message">
                 <%= error %>
             </div>
         <% } %>
-        
+
         <form method="POST" action="/admin/login">
             <div class="form-group">
                 <label for="username">Användarnamn</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" required autocomplete="username">
             </div>
-            
+
             <div class="form-group">
                 <label for="password">Lösenord</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
-            
+
             <button type="submit" class="login-button">Logga in</button>
         </form>
-        
+
         <div class="back-link">
             <a href="/">← Tillbaka till hemsidan</a>
         </div>
     </div>
 </body>
 </html>
-
-

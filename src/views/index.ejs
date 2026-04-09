@@ -21,19 +21,21 @@
         <!-- Hem Section -->
         <section id="hem" class="hero-section">
             <div class="container">
-                <div class="hero-content">
-                    <h2>Välkommen till Mikael Dolfe</h2>
-                    <p class="hero-subtitle">Författare, journalist, översättare och uppläsare</p>
-                    <div class="hero-main">
-                        <div class="hero-author">
-                            <div class="author-display-image">
-                                <img src="<%= heroProfileUrl %>" alt="Mikael Dolfe - Författare" class="author-display-picture" width="200" height="200" fetchpriority="high">
-                            </div>
+                <div class="hero-inner">
+                    <div class="hero-portrait-col">
+                        <div class="hero-portrait-frame">
+                            <img src="<%= heroProfileUrl %>" alt="Mikael Dolfe - Författare" class="hero-portrait-img" width="380" height="520" fetchpriority="high">
                         </div>
-                        <div class="hero-book">
-                            <h3>Aktuell bok</h3>
-                            <h4>Älska har sin tid - boken om Nancy</h4>
-                            <p>En gripande berättelse om kärlek, sorg och livets utmaningar</p>
+                    </div>
+                    <div class="hero-text-col">
+                        <p class="hero-eyebrow">Välkommen till</p>
+                        <h2 class="hero-name">Mikael<br>Dolfe</h2>
+                        <p class="hero-roles">Författare · Journalist · Översättare</p>
+                        <div class="hero-featured-book">
+                            <p class="hero-book-label">Aktuell bok</p>
+                            <h3 class="hero-book-title">Älska har sin tid</h3>
+                            <p class="hero-book-subtitle">boken om Nancy</p>
+                            <p class="hero-book-desc">En gripande berättelse om kärlek, sorg och livets utmaningar</p>
                             <a href="/book/1" class="cta-button">Läs mer om boken</a>
                         </div>
                     </div>
@@ -44,7 +46,7 @@
         <!-- Böcker Section -->
         <section id="bocker" class="books-section">
             <div class="container">
-                <h2>Böcker</h2>
+                <h2 class="section-heading">Böcker</h2>
                 <div class="books-grid" id="books-container">
                     <div class="loading">Laddar böcker...</div>
                 </div>
@@ -52,10 +54,29 @@
         </section>
 
 
+        <!-- Omdömen Section -->
+        <% if (blurbs && blurbs.length > 0) { %>
+        <section id="omdomen" class="blurbs-section">
+            <div class="container">
+                <h2 class="section-heading">Vad läsarna säger</h2>
+                <div class="blurbs-home-grid">
+                    <% blurbs.forEach(function(blurb) { %>
+                        <div class="blurb-home-card">
+                            <blockquote class="blurb-home-quote">
+                                <p>"<%= blurb.quotation %>"</p>
+                            </blockquote>
+                            <cite class="blurb-home-author">— <%= blurb.name %></cite>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </section>
+        <% } %>
+
         <!-- Blogg Section -->
         <section id="blogg" class="blog-section">
             <div class="container">
-                <h2>Blogg</h2>
+                <h2 class="section-heading">Blogg</h2>
                 <p class="section-intro">Följ Mikaels tankar, inspiration och processer som författare och konstnär.</p>
                 <div class="blog-grid" id="blog-container">
                     <div class="loading">Laddar blogginlägg...</div>
@@ -66,17 +87,22 @@
         <!-- Om Författaren Section -->
         <section id="om" class="about-section">
             <div class="container">
-                <h2>Om Författaren</h2>
+                <h2 class="section-heading">Om Författaren</h2>
                 <div class="about-content">
-                    <div class="about-text">
-                        <p>Mikael Dolfe är en svensk författare vars verk utforskar mänsklighetens djup, kärlekens mysterier och tidens gång. Med en bakgrund inom litteratur skapar han berättelser som rör vid själen.</p>
-                        
-                        <p>Hans senaste projekt, "Älska har sin tid - Boken om Nancy", är en poetisk roman som undersöker hur kärlek förändras över tid och vad som händer när vi möter våra djupaste känslor.</p>
-                        
-                        <p>Mikael bor och arbetar i Sverige, där han inspireras av landskapet, människorna han möter och livets små ögonblick som ofta döljer de största sanningarna.</p>
-                    </div>
                     <div class="about-image">
                         <img src="<%= getImageUrl('profile', 'Mikael-TEC.jpg') %>" alt="Mikael Dolfe - Författare" class="author-profile-image" width="600" height="450" loading="lazy" decoding="async">
+                    </div>
+                    <div class="about-text">
+                        <p>Mikael Dolfe är en svensk författare vars verk utforskar mänsklighetens djup, kärlekens mysterier och tidens gång. Med en bakgrund inom litteratur skapar han berättelser som rör vid själen.</p>
+
+                        <blockquote class="author-quote">
+                            <p>"Livets små ögonblick döljer ofta de största sanningarna — det är dem jag försöker fånga."</p>
+                            <cite>— Mikael Dolfe</cite>
+                        </blockquote>
+
+                        <p>Hans senaste projekt, "Älska har sin tid - Boken om Nancy", är en poetisk roman som undersöker hur kärlek förändras över tid och vad som händer när vi möter våra djupaste känslor.</p>
+
+                        <p>Mikael bor och arbetar i Sverige, där han inspireras av landskapet, människorna han möter och livets eviga rytm.</p>
                     </div>
                 </div>
             </div>
@@ -85,7 +111,7 @@
         <!-- Kontakt Section -->
         <section id="kontakt" class="contact-section">
             <div class="container">
-                <h2>Kontakt</h2>
+                <h2 class="section-heading">Kontakt</h2>
                 <p class="section-intro">Vill du komma i kontakt med Mikael? Skicka ett meddelande nedan.</p>
                 <div class="contact-content">
                     <form class="contact-form" id="contactForm">

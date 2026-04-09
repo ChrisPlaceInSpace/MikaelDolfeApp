@@ -14,218 +14,168 @@
   ogDescription: postDesc
 }) %>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        main {
-            flex: 1;
-        }
-        
-        .blog-post {
+        html, body { height: 100%; }
+        body { display: flex; flex-direction: column; }
+        main { flex: 1; }
+
+        .blog-post-page {
             padding: 4rem 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: #faf8f4;
             min-height: calc(100vh - 200px);
         }
-        
+
         .post-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 1.25rem;
         }
-        
+
         .post-header {
             text-align: center;
             margin-bottom: 3rem;
         }
-        
+
         .post-title {
-            font-size: 3rem;
-            color: #2c3e50;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            color: #2d1b0e;
             margin-bottom: 1rem;
             font-family: 'Playfair Display', serif;
             line-height: 1.2;
         }
-        
+
         .post-meta {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 1rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
         }
-        
+
         .meta-item {
             background: white;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 1rem;
             border-radius: 20px;
-            font-size: 0.9rem;
-            color: #2c3e50;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.85rem;
+            color: #2d1b0e;
+            box-shadow: 0 2px 8px rgba(45, 27, 14, 0.08);
+            border: 1px solid #e8ddd0;
         }
-        
+
         .post-excerpt {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: #7f8c8d;
+            background: #f3ede3;
+            border-left: 3px solid #8c3a2b;
+            padding: 1.5rem 2rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2.5rem;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #2d1b0e;
             font-style: italic;
-            text-align: center;
+            font-family: 'Playfair Display', serif;
+            text-align: left;
         }
-        
+
         .post-content {
             background: white;
-            padding: 3rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(45, 27, 14, 0.09);
+            border: 1px solid #e8ddd0;
             margin-bottom: 2rem;
         }
-        
+
         .post-text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #2c3e50;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: #3d2b1f;
         }
-        
-        .post-text p {
-            margin-bottom: 1.5rem;
-        }
-        
+
+        .post-text p { margin-bottom: 1.5rem; }
+
         .post-text h2, .post-text h3, .post-text h4 {
-            color: #2c3e50;
-            margin: 2rem 0 1rem 0;
+            color: #2d1b0e;
+            margin: 2rem 0 1rem;
             font-family: 'Playfair Display', serif;
         }
-        
-        .post-text h2 {
-            font-size: 1.8rem;
-        }
-        
-        .post-text h3 {
-            font-size: 1.5rem;
-        }
-        
-        .post-text h4 {
-            font-size: 1.3rem;
-        }
-        
-        .post-text ul, .post-text ol {
-            margin: 1rem 0;
-            padding-left: 2rem;
-        }
-        
-        .post-text li {
-            margin-bottom: 0.5rem;
-        }
-        
+
+        .post-text h2 { font-size: 1.8rem; }
+        .post-text h3 { font-size: 1.5rem; }
+        .post-text h4 { font-size: 1.3rem; }
+
+        .post-text ul, .post-text ol { margin: 1rem 0; padding-left: 2rem; }
+        .post-text li { margin-bottom: 0.5rem; }
+
         .post-text blockquote {
-            border-left: 4px solid #3498db;
-            padding-left: 1.5rem;
+            border-left: 3px solid #8c3a2b;
+            padding: 1rem 1.5rem;
             margin: 2rem 0;
             font-style: italic;
-            color: #7f8c8d;
+            color: #2d1b0e;
             font-size: 1.1rem;
+            background: rgba(140, 58, 43, 0.05);
+            border-radius: 0 8px 8px 0;
         }
-        
 
-        
         .btn {
             display: inline-block;
             padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: #8c3a2b;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: all 0.25s ease;
         }
-        
+
         .btn:hover {
+            background: #6e2d20;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 5px 18px rgba(140, 58, 43, 0.35);
         }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-        }
-        
-        .btn-secondary:hover {
-            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
-        }
-        
+
+        .btn-secondary { background: #7a6a5a; }
+        .btn-secondary:hover { background: #5e5148; }
+
         .back-link {
             display: inline-block;
             margin-bottom: 2rem;
-            color: #3498db;
+            color: #8c3a2b;
             text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1rem;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
+
+        .back-link:hover { text-decoration: underline; }
+
         .breadcrumb {
             margin-bottom: 2rem;
-            font-size: 0.9rem;
-            color: #7f8c8d;
+            font-size: 0.85rem;
+            color: #7a6a5a;
         }
-        
-        .breadcrumb a {
-            color: #3498db;
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
+
+        .breadcrumb a { color: #8c3a2b; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
         .status-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            background: #8c3a2b;
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 1rem;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-bottom: 1rem;
         }
-        
-        .draft-badge {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-        }
-        
+
+        .draft-badge { background: #a06b10; }
+
         @media (max-width: 768px) {
-            .post-title {
-                font-size: 2rem;
-            }
-            
-            .post-meta {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .post-container {
-                padding: 0 1rem;
-                margin-top: 3rem;
-            }
-            
-            .post-content {
-                padding: 2rem;
-            }
+            .blog-post-page { padding: 0; padding-bottom: 4rem; }
+            .post-container { padding: 0 1rem; margin-top: 3rem; }
+            .post-content { padding: 1.5rem; }
+            .post-excerpt { padding: 1.25rem 1.5rem; }
         }
     </style>
 </head>
@@ -233,12 +183,12 @@
     <%- include('components/header') %>
 
     <main>
-        <section class="blog-post">
+        <section class="blog-post-page">
             <div class="post-container">
-                <a href="/#blogg" class="back-link">← Tillbaka till Blogg</a>
+                <a href="/blogg" class="back-link">← Tillbaka till Blogg</a>
                 
                 <div class="breadcrumb">
-                    <a href="/">Hem</a> > <a href="/#blogg">Blogg</a> > <%= post.title %>
+                    <a href="/">Hem</a> > <a href="/blogg">Blogg</a> > <%= post.title %>
                 </div>
                 
                 <div class="post-header">
@@ -275,11 +225,7 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Mikael Dolfe. Alla rättigheter förbehållna.</p>
-        </div>
-    </footer>
+    <%- include('components/footer') %>
 
     <script src="/assets/scripts/script.js"></script>
 </body>
