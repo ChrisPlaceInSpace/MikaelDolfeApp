@@ -1,5 +1,4 @@
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
 
 class SupabaseService {
     constructor() {
