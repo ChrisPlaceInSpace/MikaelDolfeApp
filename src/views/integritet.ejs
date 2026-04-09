@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<%- include('components/head-base', {
+  pageTitle: 'Integritetspolicy - Mikael Dolfe',
+  pageDescription: 'Integritetspolicy för mikaeldolfe.se – hur vi samlar in, använder och skyddar dina personuppgifter.',
+  canonicalPath: '/integritet',
+  ogType: 'website'
+}) %>
+    <style>
+        html, body { height: 100%; }
+        body { display: flex; flex-direction: column; }
+        main { flex: 1; }
+
+        .policy-hero {
+            background: #f3ede3;
+            border-bottom: 1px solid #e8ddd0;
+            padding: 5rem 0 3.5rem;
+            text-align: center;
+        }
+
+        .policy-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            color: #2d1b0e;
+            margin-bottom: 1rem;
+            position: relative;
+            padding-bottom: 1.25rem;
+        }
+
+        .policy-hero h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 2px;
+            background: #8c3a2b;
+            border-radius: 2px;
+        }
+
+        .policy-hero p {
+            color: #7a6a5a;
+            font-size: 1.05rem;
+        }
+
+        .policy-content {
+            padding: 4rem 0 5rem;
+            background: #faf8f4;
+        }
+
+        .policy-body {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2.5rem;
+            color: #8c3a2b;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        .policy-body h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #2d1b0e;
+            margin: 2.5rem 0 0.75rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid #e8ddd0;
+        }
+
+        .policy-body h3 {
+            font-size: 1.05rem;
+            color: #2d1b0e;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        .policy-body p {
+            color: #4a3728;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .policy-body ul {
+            color: #4a3728;
+            line-height: 1.8;
+            margin: 0.5rem 0 1rem 1.5rem;
+        }
+
+        .policy-body ul li {
+            margin-bottom: 0.35rem;
+        }
+
+        .policy-body a {
+            color: #8c3a2b;
+            text-decoration: underline;
+        }
+
+        .policy-body a:hover {
+            color: #6b2c20;
+        }
+
+        .policy-updated {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e8ddd0;
+            color: #7a6a5a;
+            font-size: 0.9rem;
+        }
+
+        .contact-box {
+            background: #fff;
+            border: 1px solid #e8ddd0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .contact-box p {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <%- include('components/header') %>
+
+    <main>
+        <section class="policy-hero">
+            <div class="container">
+                <h1>Integritetspolicy</h1>
+                <p>Senast uppdaterad: april 2026</p>
+            </div>
+        </section>
+
+        <section class="policy-content">
+            <div class="policy-body">
+                <a href="/" class="back-link">← Tillbaka till startsidan</a>
+
+                <p>Vi värnar om din personliga integritet och strävar efter att alltid skydda dina personuppgifter på bästa möjliga sätt. Den här integritetspolicyn beskriver vilka personuppgifter vi samlar in, varför vi gör det, hur länge vi sparar dem och vilka rättigheter du har.</p>
+
+                <!-- 1. Personuppgiftsansvarig -->
+                <h2>1. Personuppgiftsansvarig</h2>
+                <div class="contact-box">
+                    <p><strong>Mikael Dolfe</strong></p>
+                    <p>E-post: <a href="mailto:kontakta@mikaeldolfe.se">kontakta@mikaeldolfe.se</a></p>
+                    <p>Webbplats: <a href="https://mikaeldolfe.se">mikaeldolfe.se</a></p>
+                </div>
+                <p>Mikael Dolfe är personuppgiftsansvarig för den behandling av personuppgifter som sker via denna webbplats.</p>
+
+                <!-- 2. Vilka uppgifter samlar vi in -->
+                <h2>2. Vilka personuppgifter samlar vi in?</h2>
+
+                <h3>Kontaktformulär</h3>
+                <p>När du skickar ett meddelande via kontaktformuläret samlar vi in:</p>
+                <ul>
+                    <li>Namn</li>
+                    <li>E-postadress</li>
+                    <li>Ämne (frivilligt)</li>
+                    <li>Meddelandetext</li>
+                </ul>
+                <p>Dessa uppgifter skickas direkt till Mikaels e-postinkorg och lagras <strong>inte</strong> i vår databas.</p>
+
+                <h3>Säkerhetsloggar</h3>
+                <p>Av säkerhetsskäl loggar servern IP-adresser vid specifika händelser, exempelvis inloggningsförsök och felaktiga förfrågningar. Dessa loggar används enbart för att skydda webbplatsen mot missbruk och sparas i enlighet med den valda serverplattformens policy.</p>
+
+                <h3>Kakor (cookies)</h3>
+                <p>Webbplatsen använder en enda sessionskaka (<code>mikael-dolfe-session</code>) som enbart sätts när administratören loggar in på adminpanelen. Denna kaka är strikt nödvändig för adminfunktionen och sätts <strong>inte</strong> för vanliga besökare. Vi använder inga spårningskakor, analyskakor eller reklamkakor.</p>
+
+                <!-- 3. Ändamål och rättslig grund -->
+                <h2>3. Ändamål och rättslig grund</h2>
+                <ul>
+                    <li><strong>Kontaktformulär</strong> — Behandlingen grundar sig på berättigat intresse (art. 6.1 f GDPR): att kunna besvara frågor och förfrågningar som skickas till oss.</li>
+                    <li><strong>Säkerhetsloggar</strong> — Berättigat intresse (art. 6.1 f GDPR): att skydda webbplatsen mot angrepp och missbruk.</li>
+                    <li><strong>Sessionskaka</strong> — Strikt nödvändig för webbplatsens funktion (ingen separat rättslig grund krävs).</li>
+                </ul>
+
+                <!-- 4. Hur länge sparar vi uppgifterna -->
+                <h2>4. Hur länge sparar vi dina uppgifter?</h2>
+                <ul>
+                    <li><strong>Kontaktmeddelanden</strong> — Sparas i e-postinkorgen så länge de är relevanta för kommunikationen, och raderas därefter.</li>
+                    <li><strong>Säkerhetsloggar</strong> — Sparas i enlighet med den aktuella serverplattformens loggningspolicy (normalt 7–30 dagar).</li>
+                    <li><strong>Sessionskaka</strong> — Upphör automatiskt att gälla efter 24 timmar eller när administratören loggar ut.</li>
+                </ul>
+
+                <!-- 5. Tredjepartsleverantörer -->
+                <h2>5. Tredjepartsleverantörer och personuppgiftsbiträden</h2>
+                <p>Vi delar dina uppgifter med ett begränsat antal betrodda leverantörer som behandlar uppgifter för vår räkning:</p>
+                <ul>
+                    <li><strong>Supabase</strong> (Supabase Inc.) — Databasinfrastruktur. Supabase behandlar uppgifter i enlighet med GDPR och erbjuder ett personuppgiftsbiträdesavtal. Läs mer på <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a>.</li>
+                    <li><strong>Resend</strong> — E-postleverans för kontaktformulär. Ditt namn och din e-postadress vidarebefordras till Resend vid utskick. Läs mer på <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">resend.com/legal/privacy-policy</a>.</li>
+                    <li><strong>Railway / AWS</strong> — Serverhosting. Dessa plattformar kan logga trafik- och feldata i enlighet med sina respektive integritetspolicyer.</li>
+                </ul>
+                <p>Vi säljer aldrig dina personuppgifter till tredje part.</p>
+
+                <!-- 6. Dina rättigheter -->
+                <h2>6. Dina rättigheter</h2>
+                <p>Enligt GDPR har du följande rättigheter avseende dina personuppgifter:</p>
+                <ul>
+                    <li><strong>Rätt till tillgång</strong> — Du har rätt att begära ett registerutdrag över de uppgifter vi behandlar om dig.</li>
+                    <li><strong>Rätt till rättelse</strong> — Du har rätt att begära att felaktiga uppgifter rättas.</li>
+                    <li><strong>Rätt till radering</strong> — Du har rätt att begära att dina uppgifter raderas ("rätten att bli glömd"), i den mån det inte finns rättsliga skäl att bevara dem.</li>
+                    <li><strong>Rätt till begränsning</strong> — Du har rätt att begära att behandlingen av dina uppgifter begränsas i vissa situationer.</li>
+                    <li><strong>Rätt till dataportabilitet</strong> — Du har rätt att få ut dina uppgifter i ett strukturerat, maskinläsbart format.</li>
+                    <li><strong>Rätt att invända</strong> — Du har rätt att invända mot behandling som grundar sig på berättigat intresse.</li>
+                </ul>
+                <p>För att utöva dina rättigheter, kontakta oss på <a href="mailto:kontakta@mikaeldolfe.se">kontakta@mikaeldolfe.se</a>. Vi svarar inom 30 dagar.</p>
+
+                <!-- 7. Klagomål -->
+                <h2>7. Rätt att lämna klagomål</h2>
+                <p>Om du anser att vår behandling av dina personuppgifter strider mot GDPR har du rätt att lämna in ett klagomål till <strong>Integritetsskyddsmyndigheten (IMY)</strong>:</p>
+                <div class="contact-box">
+                    <p><strong>Integritetsskyddsmyndigheten (IMY)</strong></p>
+                    <p>Webbplats: <a href="https://www.imy.se" target="_blank" rel="noopener noreferrer">www.imy.se</a></p>
+                    <p>E-post: <a href="mailto:imy@imy.se">imy@imy.se</a></p>
+                    <p>Telefon: 08-657 61 00</p>
+                </div>
+
+                <!-- 8. Ändringar -->
+                <h2>8. Ändringar i integritetspolicyn</h2>
+                <p>Vi kan komma att uppdatera denna policy vid behov, till exempel om vi inför nya tjänster eller om lagstiftningen ändras. Den aktuella versionen finns alltid tillgänglig på <a href="/integritet">mikaeldolfe.se/integritet</a>. Datumet för senaste uppdatering anges överst på sidan.</p>
+
+                <div class="policy-updated">
+                    <p>Denna integritetspolicy gäller för webbplatsen mikaeldolfe.se och trädde i kraft i april 2026.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('components/footer') %>
+
+    <script src="/assets/scripts/script.js"></script>
+</body>
+</html>
