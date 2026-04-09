@@ -1,5 +1,4 @@
 const { Resend } = require('resend');
-require('dotenv').config();
 
 class ResendService {
     constructor() {

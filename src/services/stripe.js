@@ -1,5 +1,4 @@
 const Stripe = require('stripe');
-require('dotenv').config();
 
 class StripeService {
     constructor() {
