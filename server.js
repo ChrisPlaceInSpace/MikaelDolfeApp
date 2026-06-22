@@ -521,10 +521,12 @@ app.get('/admin/books/:id/blurbs/new', requireAuth, async (req, res) => {
 
 app.post('/admin/books/:id/blurbs', requireAuth, async (req, res) => {
     try {
+        const sortOrderRaw = req.body.sort_order;
         const blurbData = {
             book_id: req.params.id,
             name: req.body.name,
             quotation: req.body.quotation,
+            sort_order: sortOrderRaw !== '' && sortOrderRaw !== undefined ? parseInt(sortOrderRaw, 10) : null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
         };
@@ -549,9 +551,11 @@ app.get('/admin/blurbs/:id/edit', requireAuth, async (req, res) => {
 
 app.post('/admin/blurbs/:id', requireAuth, async (req, res) => {
     try {
+        const sortOrderRaw = req.body.sort_order;
         const blurbData = {
             name: req.body.name,
             quotation: req.body.quotation,
+            sort_order: sortOrderRaw !== '' && sortOrderRaw !== undefined ? parseInt(sortOrderRaw, 10) : null,
             updated_at: new Date().toISOString()
         };
         
@@ -609,8 +613,7 @@ app.get('/admin/orders', requireAuth, async (req, res) => {
 // Serve the main website
 app.get('/', async (req, res) => {
     try {
-        const allBlurbs = await db.getAllBookBlurbs();
-        const blurbs = allBlurbs.slice(0, 3);
+        const blurbs = await db.getHomepageBlurbs();
         res.render('index', { blurbs });
     } catch (error) {
         log('warn', 'Could not load blurbs for homepage', { error: error.message });

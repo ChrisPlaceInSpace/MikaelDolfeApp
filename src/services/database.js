@@ -47,6 +47,10 @@ class DatabaseManager {
         return this.supabase.getAllBookBlurbs();
     }
 
+    async getHomepageBlurbs() {
+        return this.supabase.getHomepageBlurbs();
+    }
+
     async getBlurb(id) {
         return this.supabase.getBlurb(id);
     }

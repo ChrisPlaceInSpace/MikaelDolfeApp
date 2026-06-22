@@ -104,6 +104,34 @@
             color: #7f8c8d;
             margin-bottom: 1rem;
         }
+
+        .blurb-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .badge-homepage {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: #eaf4fb;
+            color: #2980b9;
+            border: 1px solid #aed6f1;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-hidden {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: #f4f4f4;
+            color: #aaa;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
         
         .blurb-actions {
             display: flex;
@@ -167,6 +195,13 @@
             <div class="blurbs-list">
                 <% blurbs.forEach(function(blurb) { %>
                     <div class="blurb-item">
+                        <div class="blurb-meta">
+                            <% if (blurb.sort_order !== null && blurb.sort_order !== undefined) { %>
+                                <span class="badge-homepage">Startsida #<%= blurb.sort_order %></span>
+                            <% } else { %>
+                                <span class="badge-hidden">Visas ej på startsidan</span>
+                            <% } %>
+                        </div>
                         <div class="blurb-quotation">
                             "<%= blurb.quotation %>"
                         </div>

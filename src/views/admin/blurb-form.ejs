@@ -198,6 +198,21 @@
                     ><%= blurb ? blurb.quotation : '' %></textarea>
                     <div class="form-help">Det faktiska citatet eller recensionen som ska visas på boksidan.</div>
                 </div>
+
+                <div class="form-group">
+                    <label for="sort_order" class="form-label">Hemsideplacering</label>
+                    <input 
+                        type="number" 
+                        id="sort_order" 
+                        name="sort_order" 
+                        class="form-input" 
+                        value="<%= (blurb && blurb.sort_order !== null && blurb.sort_order !== undefined) ? blurb.sort_order : '' %>"
+                        placeholder="t.ex. 1, 2, 3"
+                        min="0"
+                        style="max-width: 180px;"
+                    >
+                    <div class="form-help">Lämna tomt = visas ej på startsidan. De 3 blurbarna med lägst nummer visas. Samma nummer på flera blurbar är okej — de sorteras då efter ID.</div>
+                </div>
                 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-success">
