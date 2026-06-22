@@ -702,9 +702,6 @@ p {
     box-shadow: var(--shadow-card);
 }
 
-.blurb-home-card:nth-child(n+3) {
-    display: none;
-}
 
 .blurb-home-quote {
     margin: 0;
@@ -739,10 +736,6 @@ p {
 @media (min-width: 900px) {
     .blurbs-home-grid {
         grid-template-columns: repeat(3, 1fr);
-    }
-
-    .blurb-home-card:nth-child(3) {
-        display: block;
     }
 }
 
