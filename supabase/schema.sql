@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS book_blurbs (
     book_id BIGINT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
     name VARCHAR(200) NOT NULL,
     quotation TEXT NOT NULL,
+    sort_order INTEGER DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -68,6 +69,10 @@ ALTER TABLE books ADD COLUMN IF NOT EXISTS price DECIMAL(10,2);
 
 -- Add sort_order column to existing books table (if it doesn't exist)
 ALTER TABLE books ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+
+-- Add sort_order column to existing book_blurbs table (if it doesn't exist)
+ALTER TABLE book_blurbs ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT NULL;
+CREATE INDEX IF NOT EXISTS idx_book_blurbs_sort_order ON book_blurbs(sort_order) WHERE sort_order IS NOT NULL;
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE books ENABLE ROW LEVEL SECURITY;

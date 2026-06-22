@@ -83,7 +83,21 @@ class SupabaseService {
             .from('book_blurbs')
             .select('*')
             .eq('book_id', bookId)
+            .order('sort_order', { ascending: true, nullsFirst: false })
             .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+    }
+
+    async getHomepageBlurbs() {
+        const { data, error } = await this.supabase
+            .from('book_blurbs')
+            .select('*')
+            .not('sort_order', 'is', null)
+            .order('sort_order', { ascending: true })
+            .order('id', { ascending: true })
+            .limit(3);
         
         if (error) throw error;
         return data;
